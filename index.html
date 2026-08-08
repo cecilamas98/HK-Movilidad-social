@@ -266,6 +266,12 @@ td input[type=number]{width:78px;padding:5px 7px;}
 .day-head b{color:var(--text);}
 .mini-task{background:var(--card-bg-2);border-radius:8px;padding:7px 8px;font-size:12px;margin-bottom:6px;border-left:3px solid var(--mini-color,var(--border-2));}
 .mini-task select{margin-top:5px;font-size:11px;padding:4px 6px;}
+.prog-mes-headrow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:6px;}
+.prog-mes-headcell{font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;text-align:center;}
+.prog-mes-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:8px;}
+.day-col-compact{min-height:64px;padding:8px;}
+.day-col-compact .day-head{margin-bottom:4px;font-size:11px;}
+.day-col-compact .mini-task{padding:5px 6px;margin-bottom:4px;font-size:11px;}
 
 /* slides */
 .slide{padding:46px 6px;border-bottom:1px dashed var(--border);}
@@ -699,7 +705,8 @@ let ui = {
   objetivoExpandido:null,
   confirmDelete:null,
   mesSeccionesColapsadas:{},
-  unopctOpen:false
+  unopctOpen:false,
+  progMes: monthKey(new Date())
 };
 
 // ── Supabase config ──────────────────────────────────────────
@@ -1170,6 +1177,68 @@ function renderMejorasBanda(mejActivas, days){
          '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+bands+'</div></div>';
 }
 
+function monthWeekdayRows(mk){
+  const [y,m] = mk.split('-').map(Number);
+  const first = new Date(y, m-1, 1);
+  const last = new Date(y, m, 0);
+  const rows = [];
+  let currentWeekStart = null, currentRow = [];
+  for(let d=new Date(first); d<=last; d=addDays(d,1)){
+    const dow = d.getDay();
+    if(dow<1 || dow>5) continue;
+    const ws = isoDate(startOfWeek(d));
+    if(ws !== currentWeekStart){
+      if(currentRow.length) rows.push(currentRow);
+      currentRow = [];
+      currentWeekStart = ws;
+    }
+    currentRow.push(new Date(d));
+  }
+  if(currentRow.length) rows.push(currentRow);
+  return rows;
+}
+
+function renderProgramacionMes(mk){
+  const rows = monthWeekdayRows(mk);
+  const todayISO = isoDate(new Date());
+  const headRow = `<div class="prog-mes-headrow">${['Lunes','Martes','Miércoles','Jueves','Viernes'].map(l=>`<div class="prog-mes-headcell">${l}</div>`).join('')}</div>`;
+  const bodyRows = rows.map(row=>{
+    const cells = row.map(d=>{
+      const iso = isoDate(d);
+      const dmk = monthKey(d);
+      const tareas = tareasDelDia(dmk, iso);
+      const col = d.getDay();
+      return `
+      <div class="day-col day-col-compact ${iso===todayISO?'today':''}" data-day-drop="${iso}" style="grid-column:${col};">
+        <div class="day-head">${d.getDate()}</div>
+        ${tareas.map(t=>`
+          <div class="mini-task" style="--mini-color:${pilarColorVar(t.pilar)};">
+            <div class="row-between" style="gap:6px;">
+              <span style="flex:1;${t.completada?'text-decoration:line-through;color:var(--text-3);':''}">${esc(t.titulo)}</span>
+              <button class="iconbtn" data-del-task="${t.id}" data-mk="${dmk}">×</button>
+            </div>
+          </div>`).join('')}
+        ${!tareas.length?'<div class="small muted">—</div>':''}
+      </div>`;
+    }).join('');
+    return `<div class="prog-mes-row">${cells}</div>`;
+  }).join('');
+  return `
+  <div class="card" style="margin-top:16px;">
+    <div class="row-between">
+      <div class="section-title" style="margin:0;">Programación de actividades — <span style="text-transform:capitalize;">${monthLabel(mk)}</span></div>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="btnProgMesPrev">‹ anterior</button>
+        <button class="btn btn-ghost btn-sm" id="btnProgMesHoy">este mes</button>
+        <button class="btn btn-ghost btn-sm" id="btnProgMesNext">siguiente ›</button>
+      </div>
+    </div>
+    <p class="small muted" style="margin:6px 0 14px;">Arrastra actividades del panel de arriba a cualquier día laborable del mes para programarlas.</p>
+    ${headRow}
+    ${bodyRows}
+  </div>`;
+}
+
 function renderSemana(){
   const weekStart = ui.semanaBase;
   const days = [...Array(7)].map((_,i)=>addDays(weekStart,i));
@@ -1248,8 +1317,10 @@ function renderSemana(){
     ${ui.pilarExpandido? renderPanelPilar(ui.pilarExpandido, days, todayISO, yaAgregadasSemana) : ''}
   </div>
 
+  ${ui.pilarExpandido? renderProgramacionMes(ui.progMes) : ''}
+
   <div class="card">
-    <div class="section-title">Distribución de la semana</div>
+    <div class="section-title">Gestión diaria — esta semana</div>
     <div class="week-grid">${cols}</div>
   </div>
 
@@ -1450,6 +1521,13 @@ function bindSemanaEvents(){
   if(btnPrev) btnPrev.addEventListener('click', async ()=>{ ui.semanaBase = addDays(ui.semanaBase,-7); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
   if(btnNext) btnNext.addEventListener('click', async ()=>{ ui.semanaBase = addDays(ui.semanaBase,7); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
   if(btnHoy) btnHoy.addEventListener('click', async ()=>{ ui.semanaBase = startOfWeek(new Date()); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
+
+  const btnProgPrev = document.getElementById('btnProgMesPrev');
+  const btnProgNext = document.getElementById('btnProgMesNext');
+  const btnProgHoy = document.getElementById('btnProgMesHoy');
+  if(btnProgPrev) btnProgPrev.addEventListener('click', async ()=>{ ui.progMes = addMonths(ui.progMes,-1); await loadMonth(ui.progMes); renderViewport(); });
+  if(btnProgNext) btnProgNext.addEventListener('click', async ()=>{ ui.progMes = addMonths(ui.progMes,1); await loadMonth(ui.progMes); renderViewport(); });
+  if(btnProgHoy) btnProgHoy.addEventListener('click', async ()=>{ ui.progMes = monthKey(new Date()); await loadMonth(ui.progMes); renderViewport(); });
 
   const btnCap = document.getElementById('btnToggleCaptura');
   if(btnCap) btnCap.addEventListener('click',()=>{ ui.unopctOpen=!ui.unopctOpen; renderViewport(); });
@@ -1695,10 +1773,10 @@ function renderPanelPilarMes(pid, mk){
     ${(ui.indNewOpen && ui.indNewOpenPilar===pid) ? renderFormNuevoIndicador(pid) : ''}
     ${renderTablaIndicadores({pilar:pid, mk})}
 
-    <div class="section-title" style="margin:20px 0 8px;">Mejoras 1% relacionadas con ${p.id}</div>
+    <div class="section-title" style="margin:20px 0 8px;">Mejoras 1% relacionadas con ${p.id} — ${monthLabel(mk)}</div>
     ${(()=>{
-      const relacionadas = state.mejoras.filter(m=>m.pilar===pid).sort((a,b)=>b.fechaInicio.localeCompare(a.fechaInicio));
-      if(!relacionadas.length) return `<p class="small muted">Aún no hay ideas del 1% ligadas a este pilar. Puedes ligarlas desde la tabla en "El 1% · Mejoras" más abajo.</p>`;
+      const relacionadas = mejorasDelMes(mk).filter(m=>m.pilar===pid).sort((a,b)=>b.fechaInicio.localeCompare(a.fechaInicio));
+      if(!relacionadas.length) return `<p class="small muted">Sin ideas del 1% ligadas a este pilar en ${monthLabel(mk)}.</p>`;
       return `<div class="tbl-wrap"><table>
         <thead><tr><th>Fecha</th><th>Propuesta</th><th>Líder/equipo</th></tr></thead>
         <tbody>${relacionadas.map(m=>`<tr><td class="small">${m.fechaInicio}</td><td>${esc(m.propuesta)}</td><td class="small muted">${esc(m.lider)}${m.equipo?' · '+esc(m.equipo):''}</td></tr>`).join('')}</tbody>
@@ -2401,8 +2479,10 @@ async function init(){
     await loadCatalogos();
     ui.mes = monthKey(new Date()); // mes actual
     ui.semanaBase = startOfWeek(new Date());
+    ui.progMes = monthKey(new Date());
     await ensureWeekLoaded(ui.semanaBase);
     await loadMonth(ui.mes);
+    await loadMonth(ui.progMes);
   }catch(e){
     console.error('Error al inicializar', e);
   }
