@@ -1396,6 +1396,7 @@ function renderPanelPilar(pid, days, todayISO, yaAgregadasSemana){
             ${esc(a.actividad)}
             <span class="muted" style="font-size:11px;display:block;">${ind? '→ '+esc(indicadorLabel(ind)) : '· '+esc(a.frecuencia)}</span>
           </span>
+          ${deleteBtnHtml('act', a.id, 'Eliminar actividad')}
         </span>`;
       }).join('') : '<p class="small muted">Aún no hay actividades en este pilar — escribe la primera arriba, en "Nueva".</p>'}
     </div>
