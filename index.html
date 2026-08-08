@@ -1,0 +1,2415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movilidad Social · GEB</title>
+<style>
+:root{
+  --cream:#F7F3E6;
+  --cream-2:#F0E9D6;
+  --paper:#FFFFFF;
+  --ink:#28211C;
+  --ink-soft:#6B6255;
+  --ink-faint:#9A9184;
+  --dark-blue:#1A1AA7;
+  --dark-blue-2:#131385;
+  --orange:#FFA142;
+  --sky-blue:#B1D5F0;
+  --sky-blue-deep:#3E8FD1;
+  --neon-yellow:#E3F40C;
+  --neon-yellow-deep:#B9C700;
+  --coffee:#28211C;
+  /* alias de compatibilidad con nombres previos, ahora mapeados a la identidad Café del Alma */
+  --gold-1:#FFA142;
+  --gold-2:#FFB768;
+  --violet-1:var(--dark-blue-2);
+  --violet-2:var(--dark-blue);
+  --teal:#2FA37A;
+  --teal-2:#4FC79B;
+  --text:var(--ink);
+  --text-2:var(--ink-soft);
+  --text-3:var(--ink-faint);
+  --verde:#3E9B6B;
+  --ambar:#D98B1E;
+  --rojo:#D3453A;
+  --gris:#8A8074;
+  --azul:#3E8FD1;
+  --lila:#8B7FD6;
+  --radius:18px;
+  --radius-sm:10px;
+  --font-display:'Space Grotesk','Poppins','Nunito','Segoe UI',ui-rounded,system-ui,sans-serif;
+  --font-body:'Space Grotesk','Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --border:rgba(40,33,28,0.10);
+  --border-2:rgba(40,33,28,0.20);
+  --card-bg:#FFFFFF;
+  --card-bg-2:#F3EEDF;
+  /* colores de los 8 pilares */
+  --p1:#1A1AA7; --p1-ink:#FFFFFF;
+  --p2:#3E8FD1; --p2-ink:#FFFFFF;
+  --p3:#FFA142; --p3-ink:#28211C;
+  --p4:#28211C; --p4-ink:#FFFFFF;
+  --p5:#C7D400; --p5-ink:#28211C;
+  --p6:#FF6B5B; --p6-ink:#FFFFFF;
+  --p7:#7B7FE0; --p7-ink:#FFFFFF;
+  --p8:#2FA37A; --p8-ink:#FFFFFF;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse 900px 500px at 8% -10%, rgba(26,26,167,0.05), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(255,161,66,0.09), transparent 55%),
+    radial-gradient(ellipse 600px 400px at 50% 100%, rgba(227,244,12,0.07), transparent 60%),
+    var(--cream);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,.display{font-family:var(--font-display);}
+button,input,select,textarea{font-family:inherit;color:inherit;}
+a{color:var(--dark-blue);}
+::selection{background:var(--neon-yellow);color:var(--ink);}
+
+:focus-visible{outline:2px solid var(--dark-blue);outline-offset:2px;border-radius:6px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+}
+
+/* ---------- layout shell ---------- */
+#app{max-width:1180px;margin:0 auto;padding:0 20px 60px;}
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:rgba(247,243,230,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:14px 20px;
+  margin:0 -20px 28px;
+}
+.topbar-inner{max-width:1180px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;}
+.brand{display:flex;flex-direction:column;gap:2px;}
+.brand .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-2);font-weight:600;}
+.brand .title{font-size:19px;font-weight:700;color:var(--dark-blue);}
+.nav{display:flex;gap:6px;flex-wrap:wrap;}
+.nav button{
+  background:transparent;border:1px solid transparent;color:var(--text-2);
+  padding:8px 13px;border-radius:999px;font-size:13.5px;font-weight:600;cursor:pointer;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.nav button:hover{color:var(--text);background:var(--card-bg-2);}
+.nav button.active{color:#fff;background:var(--dark-blue);border-color:transparent;}
+.topbar-actions{display:flex;gap:8px;}
+.btn{
+  border:1px solid var(--border-2);background:var(--card-bg);color:var(--text);
+  padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s,transform .1s;
+}
+.btn:hover{background:var(--card-bg-2);border-color:var(--border-2);}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:var(--dark-blue);border-color:transparent;color:#fff;}
+.btn-primary:hover{filter:brightness(1.12);}
+.btn-gold{background:var(--orange);border-color:transparent;color:var(--ink);}
+.btn-gold:hover{background:#ff9a2e;}
+.btn-ghost{background:transparent;border-color:var(--border-2);}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:8px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* ---------- generic ---------- */
+.card{
+  background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;box-shadow:0 8px 24px rgba(40,33,28,0.07);
+}
+.card + .card{margin-top:16px;}
+.section-title{font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--text-2);margin:0 0 12px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:820px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+label{font-size:12.5px;color:var(--text-2);display:block;margin-bottom:5px;font-weight:600;}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%;background:var(--paper);border:1px solid var(--border-2);
+  border-radius:10px;padding:9px 11px;font-size:14px;color:var(--text);
+}
+textarea{resize:vertical;min-height:90px;}
+input::placeholder,textarea::placeholder{color:var(--text-3);}
+.field{margin-bottom:12px;}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;background:var(--card-bg-2);
+  border:1px solid var(--border-2);border-radius:999px;padding:6px 8px 6px 14px;font-size:12.5px;color:var(--text);
+}
+.chip .pri{width:7px;height:7px;border-radius:50%;flex:none;}
+.pri-critica{background:var(--rojo);}
+.pri-estrategica{background:var(--ambar);}
+.pri-evolutiva{background:var(--azul);}
+.tag{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;padding:2px 8px;border-radius:6px;}
+.tag-nueva{background:rgba(47,163,122,0.15);color:#1f7a5c;border:1px solid rgba(47,163,122,0.4);}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;}
+.badge-gris{background:rgba(138,128,116,0.16);color:#6B6255;}
+.badge-azul{background:rgba(62,143,209,0.16);color:#25679e;}
+.badge-verde{background:rgba(62,155,107,0.16);color:#256b48;}
+.badge-ambar{background:rgba(217,139,30,0.16);color:#9c650f;}
+.badge-rojo{background:rgba(211,69,58,0.14);color:#a8291f;}
+.badge-lila{background:rgba(139,127,214,0.16);color:#5b4fb8;}
+.badge-naranja{background:rgba(255,161,66,0.22);color:#a15a10;}
+.hr{height:1px;background:var(--border);margin:16px 0;border:0;}
+.muted{color:var(--text-2);}
+.small{font-size:12.5px;}
+.empty{padding:30px 16px;text-align:center;color:var(--text-2);border:1px dashed var(--border-2);border-radius:var(--radius-sm);}
+.row{display:flex;align-items:center;gap:10px;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.checkbox{
+  width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-2);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;background:var(--paper);
+}
+.checkbox.done{background:var(--teal);border-color:transparent;}
+.checkbox.done::after{content:'';width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px);}
+.task-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border);}
+.task-row:last-child{border-bottom:none;}
+.task-title{font-size:14.5px;flex:1;}
+.task-title.done{color:var(--text-3);text-decoration:line-through;}
+.task-meta{font-size:11.5px;color:var(--text-2);display:flex;gap:8px;align-items:center;}
+.iconbtn{background:transparent;border:none;color:var(--text-3);cursor:pointer;padding:4px;border-radius:6px;font-size:15px;line-height:1;}
+.iconbtn:hover{color:var(--rojo);background:rgba(211,69,58,0.1);}
+
+/* progress bar */
+.barwrap{background:var(--card-bg-2);border-radius:999px;height:14px;overflow:hidden;position:relative;}
+.barfill{height:100%;border-radius:999px;background:var(--orange);transition:width .4s ease;}
+.barfill.over{background:var(--rojo);}
+.overload-label{color:var(--rojo);font-weight:700;font-size:13px;margin-top:8px;}
+
+/* pillar list (Presentación / Indicadores) */
+.pilar-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;background:var(--paper);}
+.pilar-card.p8{border-color:rgba(47,163,122,0.4);background:linear-gradient(135deg,rgba(47,163,122,0.08),rgba(26,26,167,0.04));}
+.pilar-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.pilar-name{font-weight:700;font-size:14.5px;}
+.pilar-pct{font-family:var(--font-display);font-weight:700;font-size:19px;}
+
+/* selector de pilares con color (Semana) */
+.pilar-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media(min-width:820px){.pilar-picker{grid-template-columns:repeat(4,1fr);}}
+.pilar-swatch{
+  border:none;border-radius:14px;padding:14px 12px;cursor:pointer;text-align:left;
+  color:var(--swatch-ink);background:var(--swatch-color);position:relative;overflow:hidden;
+  transition:transform .12s,box-shadow .12s;box-shadow:0 4px 12px rgba(40,33,28,0.08);
+}
+.pilar-swatch:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(40,33,28,0.16);}
+.pilar-swatch.open{outline:3px solid var(--ink);outline-offset:2px;}
+.pilar-swatch .pid{font-family:var(--font-display);font-weight:700;font-size:16px;display:block;}
+.pilar-swatch .pname{font-size:11.5px;opacity:.9;display:block;margin-top:2px;line-height:1.25;}
+.pilar-swatch .pcount{position:absolute;top:10px;right:12px;font-size:11px;font-weight:700;background:rgba(255,255,255,0.28);padding:2px 8px;border-radius:999px;}
+.pilar-panel{border-radius:var(--radius-sm);padding:16px;margin-top:12px;border:2px solid var(--panel-color);background:var(--paper);}
+.pilar-panel .panel-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pilar-panel .dot{width:12px;height:12px;border-radius:50%;background:var(--panel-color);flex:none;}
+.activity-chip{
+  display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:8px 10px;font-size:12.5px;
+  background:var(--paper);border:1.5px solid var(--panel-color);color:var(--ink);cursor:grab;margin:0 8px 8px 0;
+}
+.activity-chip:active{cursor:grabbing;}
+.activity-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--panel-color);flex:none;}
+.nueva-row{
+  display:flex;align-items:center;gap:8px;border-radius:10px;padding:6px 6px 6px 12px;margin:0 0 8px 0;
+  background:var(--card-bg-2);border:1.5px dashed var(--panel-color);
+}
+.nueva-row input{border:none;background:transparent;padding:4px 2px;font-size:12.5px;}
+.nueva-row input:focus{outline:none;}
+
+/* tarjetas por pilar — vista Mes (mobile-first: 1 col base, crece con el viewport) */
+.pilar-mes-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:600px){.pilar-mes-grid{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:1000px){.pilar-mes-grid{grid-template-columns:repeat(4,1fr);}}
+.pilar-mes-card{
+  border:none;border-radius:16px;padding:16px;text-align:left;cursor:pointer;
+  background:var(--card-color);color:var(--card-ink);
+  box-shadow:0 4px 14px rgba(40,33,28,0.12);transition:transform .12s,box-shadow .12s;
+  font-family:var(--font-body);width:100%;
+}
+.pilar-mes-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(40,33,28,0.2);}
+.pilar-mes-card.open{outline:3px solid var(--ink);outline-offset:2px;}
+.status-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.94);color:var(--ink);font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;flex:none;}
+.ventaja-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.26);border-radius:999px;padding:3px 10px 3px 7px;font-size:11px;font-weight:700;margin-top:6px;}
+.ventaja-feature{display:flex;align-items:center;gap:12px;background:var(--card-bg-2);border-left:4px solid var(--panel-color);border-radius:12px;padding:12px 14px;margin:12px 0 16px;}
+.ventaja-feature-icon{width:38px;height:38px;border-radius:50%;background:var(--panel-color);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;}
+
+/* semáforo visual por objetivo táctico */
+.semaforo-chip{
+  border:none;border-radius:12px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;opacity:.85;transition:opacity .12s,transform .12s;
+}
+.semaforo-chip:hover{opacity:1;transform:translateY(-1px);}
+.semaforo-chip.active{opacity:1;outline:2px solid var(--ink);outline-offset:1px;}
+.semaforo-chip b{font-size:15px;}
+.objetivo-row{border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
+.objetivo-row-head{
+  width:100%;background:var(--paper);border:none;padding:10px 12px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);text-align:left;
+}
+.objetivo-row-head:hover{background:var(--card-bg-2);}
+.objetivo-actions{background:var(--card-bg-2);padding:8px 14px;border-top:1px solid var(--border);}
+
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;color:var(--text-2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--border-2);font-weight:700;}
+td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:hover td{background:var(--card-bg-2);}
+td input[type=number]{width:78px;padding:5px 7px;}
+.tbl-wrap{overflow-x:auto;}
+
+/* week grid */
+.week-grid{display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;overflow-x:auto;}
+.day-col{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;min-height:160px;background:var(--paper);transition:background .12s,border-color .12s;}
+.day-col.today{border-color:var(--orange);box-shadow:0 0 0 1px var(--orange) inset;}
+.day-col.drag-over{background:var(--card-bg-2);border-color:var(--dark-blue);box-shadow:0 0 0 2px var(--dark-blue) inset;}
+.day-head{font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:8px;text-transform:capitalize;}
+.day-head b{color:var(--text);}
+.mini-task{background:var(--card-bg-2);border-radius:8px;padding:7px 8px;font-size:12px;margin-bottom:6px;border-left:3px solid var(--mini-color,var(--border-2));}
+.mini-task select{margin-top:5px;font-size:11px;padding:4px 6px;}
+
+/* slides */
+.slide{padding:46px 6px;border-bottom:1px dashed var(--border);}
+.slide:last-child{border-bottom:none;}
+.slide-eyebrow{font-size:12px;color:var(--orange);text-transform:uppercase;letter-spacing:.14em;font-weight:700;margin-bottom:10px;}
+.slide h2{font-size:clamp(22px,3vw,32px);margin:0 0 18px;}
+.slide-cover{text-align:center;padding:80px 6px;}
+.slide-cover .title{font-size:clamp(30px,5vw,46px);color:var(--dark-blue);font-weight:700;margin:14px 0;}
+
+/* map */
+.mapa-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:900px){.mapa-wrap{grid-template-columns:1fr;}}
+.mapa-svg{width:100%;height:auto;}
+.mapa-node circle{fill:var(--dark-blue);stroke:rgba(255,255,255,0.5);stroke-width:1;filter:drop-shadow(0 6px 14px rgba(40,33,28,0.18));cursor:pointer;transition:transform .15s;}
+.mapa-node.pilar circle{fill:var(--node-color,var(--orange));}
+.mapa-node.p8 circle{fill:var(--p8);}
+.mapa-node:hover circle{transform:scale(1.06);transform-origin:center;}
+.mapa-node.active circle{stroke:var(--ink);stroke-width:2.5;}
+.mapa-node text{fill:#fff;font-size:10.5px;font-family:var(--font-body);pointer-events:none;text-anchor:middle;}
+.mapa-node.pilar text, .mapa-node.p8 text{fill:#fff;}
+.mapa-line{stroke:rgba(40,33,28,0.18);stroke-width:1.2;}
+.mapa-line.active{stroke:var(--dark-blue);stroke-width:1.8;}
+.mapa-center circle{fill:var(--paper);stroke:var(--border-2);stroke-width:1.4;}
+.mapa-center text{fill:var(--text);font-family:var(--font-display);font-weight:700;font-size:13px;text-anchor:middle;}
+.mapa-center .sub{fill:var(--text-2);font-family:var(--font-body);font-weight:400;font-size:10px;}
+.mapa-side{margin-top:14px;}
+
+/* filters */
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.filterbar select{width:auto;padding:7px 10px;font-size:12.5px;}
+.toggle{
+  background:var(--card-bg);border:1px solid var(--border-2);border-radius:999px;padding:6px 13px;
+  font-size:12.5px;font-weight:600;cursor:pointer;color:var(--text-2);
+}
+.toggle.on{background:var(--dark-blue);color:#fff;border-color:transparent;}
+
+.hidden{display:none !important;}
+
+footer.appfoot{text-align:center;color:var(--text-3);font-size:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--border);}
+
+
+.mejora-chip-day{font-size:9.5px;padding:2px 5px;border-radius:4px;background:rgba(47,163,122,.12);
+  border-left:3px solid var(--verde);color:var(--teal);margin-bottom:3px;display:flex;
+  align-items:center;gap:4px;overflow:hidden;}
+.mejora-chip-day span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.mejora-band{background:rgba(47,163,122,.13);border-left:3px solid var(--verde);border-radius:5px;
+  padding:3px 8px;font-size:10.5px;color:var(--teal);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;cursor:default;}
+.mejora-band:hover{background:rgba(47,163,122,.22);}
+@media print{
+  .topbar,.no-print{display:none !important;}
+  body{background:#fff;color:#111;}
+  #app{max-width:100%;padding:0;}
+  .slide{page-break-after:always;padding:20px 0;border-bottom:none;}
+  .card{box-shadow:none;border-color:#ccc;}
+  .slide-cover .title{color:#1A1AA7;}
+}
+@media(max-width:640px){
+  .grid-3{grid-template-columns:1fr;}
+  .topbar-inner{flex-direction:column;align-items:flex-start;}
+  .nav{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;}
+  .pilar-picker{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="importInput" accept="application/json" class="hidden">
+<script>
+'use strict';
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function monthKey(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1); }
+function parseISO(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function startOfWeek(d){ const dt=new Date(d); const day=(dt.getDay()+6)%7; dt.setDate(dt.getDate()-day); dt.setHours(0,0,0,0); return dt; }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+function addMonths(monthKeyStr,n){ const [y,m]=monthKeyStr.split('-').map(Number); const d=new Date(y,m-1+n,1); return monthKey(d); }
+function monthLabel(monthKeyStr){
+  const [y,m]=monthKeyStr.split('-').map(Number);
+  const meses=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return meses[m-1]+' '+y;
+}
+function dayLabel(d){
+  const dias=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  return dias[d.getDay()];
+}
+function uid(prefix){ return prefix+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
+function downloadFile(filename, content, type){
+  const blob = new Blob([content], {type: type||'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+function showToast(message, isError){
+  const el = document.createElement('div');
+  el.textContent = message;
+  el.style.cssText = `position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+    background:${isError?'#D3453A':'#1A1AA7'};color:#fff;padding:12px 20px;border-radius:12px;
+    font-family:'Space Grotesk','Inter',system-ui,sans-serif;font-size:13.5px;font-weight:600;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:9999;max-width:90vw;text-align:center;`;
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; setTimeout(()=>el.remove(),400); }, 3200);
+}
+
+/* Conversión de frecuencia a horas mensuales / semanales */
+function horasMensuales(act){
+  const h = Number(act.horas)||0;
+  switch(act.frecuencia){
+    case 'Semanal': return h*4.33;
+    case 'Mensual': return h*1;
+    case 'Trimestral': return h/3;
+    case 'Semestral': return h/6;
+    case 'Anual': return h/12;
+    case 'Por caso':
+    case 'Por proceso': return h;
+    default: return h;
+  }
+}
+function horasSemanales(act){ return horasMensuales(act)/4.33; }
+
+/* =========================================================
+   CATÁLOGOS SEMILLA (nivel 5, 4, 2)
+   ========================================================= */
+const SEED_VENTAJAS = [
+  {id:1,nombre:'Family'},
+  {id:2,nombre:'Fitness'},
+  {id:3,nombre:'Comunidad / Club'},
+  {id:4,nombre:'Excelencia en el Servicio'},
+  {id:5,nombre:'Altos estándares'},
+  {id:6,nombre:'Atracción y valor'},
+  {id:7,nombre:'Posicionamiento de marca'},
+  {id:8,nombre:'Escuchar al cliente'},
+  {id:9,nombre:'Cultura Humana Organizacional'},
+  {id:10,nombre:'Universidad GEB'}
+];
+
+const SEED_PILARES = [
+  {id:'P1',nombre:'Impulso GEB',ventajaPrimaria:10,secundarias:[9,6]},
+  {id:'P2',nombre:'Escuela GEB – Cero Rezago Educativo',ventajaPrimaria:9,secundarias:[10]},
+  {id:'P3',nombre:'Certificación ESR e Identidad Social',ventajaPrimaria:7,secundarias:[9,6]},
+  {id:'P4',nombre:'Ingreso Mínimo Digno',ventajaPrimaria:6,secundarias:[9]},
+  {id:'P5',nombre:'Salud y Bienestar',ventajaPrimaria:2,secundarias:[1,9]},
+  {id:'P6',nombre:'Apoyo Humano y Social',ventajaPrimaria:1,secundarias:[3,9]},
+  {id:'P7',nombre:'Propósito, Ikigai y Plan de Vida',ventajaPrimaria:9,secundarias:[10]},
+  {id:'P8',nombre:'Upskilling',ventajaPrimaria:10,secundarias:[8,5,9],nuevo:true,
+    subetiquetas:['Ágil y autodirigido','Enfoque a la innovación','Potenciado por IA','Orientado a datos','Comunidad de práctica','Inteligencia colectiva']}
+];
+const PILAR_TRANSVERSAL = {id:'TRANSVERSAL',nombre:'Transversal (todos los pilares)',ventajaPrimaria:null,secundarias:[]};
+function getPilar(id){ if(id==='TRANSVERSAL') return PILAR_TRANSVERSAL; return state.pilares.find(p=>p.id===id); }
+function getVentaja(id){ return state.ventajas.find(v=>v.id===id); }
+
+/* Actividades observables — mapeo completo de células (cárgalo tal cual, ~46) */
+const SEED_ACTIVIDADES = [];
+// Catálogo de actividades fijas vaciado a petición de Ceci — sin actividades recurrentes precargadas.
+// Puedes volver a poblarlo importando un JSON exportado que incluya 'actividades', o pídele a Claude que agregue de nuevo esta sección.
+
+/* =========================================================
+   INDICADORES (68) — nivel 3
+   ========================================================= */
+const SEED_INDICADORES = (function(){
+  const arr = []; let id=1;
+
+  // P1 — Impulso GEB
+  arr.push({id:id++,pilar:'P1',objetivo:'Convocatoria y Selección de Participantes: jóvenes colaboradores 19–30 años.',kpi:'Nº de participantes inscritos en cada generación',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Diagnóstico Inicial: aplicación del Semáforo de la Pobreza y prueba de nivel académico.',kpi:'% de inscritos con diagnóstico completado',meta:100,real:0,estandar:'Meta 2026: 100%',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P1',objetivo:'Plan de Vida e Ikigai: diseño de plan de vida + sesión con Gerardo Villarreal.',kpi:'% de inscritos con plan de vida escrito',meta:100,real:60,estandar:'Meta 2026: 100%',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P1',objetivo:'Finanzas Personales: taller de presupuesto, ahorro, deuda e inversión.',kpi:'% de inscritos con mejora en hábitos financieros',meta:75,real:60,estandar:'Meta 2026: 75%',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P1',objetivo:'Habilidades Técnicas: certificación en Excel y herramientas digitales.',kpi:'% de inscritos certificados en Excel/herramientas',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Competencias Futuras: módulo de IA aplicada y comunicación en inglés.',kpi:'% de inscritos que aplican IA en su área de trabajo',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Certificación Interna y AJI: certificación técnica según rol + examen/testimonio AJI.',kpi:'% de inscritos que aprueban certificación o entregan testimonio',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Emprendimiento y Movilidad Económica: taller de emprendimiento y proyectos personales.',kpi:'% de inscritos que presentan proyecto emprendedor',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Testimonio de Transformación: entrega de historia personal escrita o en video.',kpi:'% de inscritos que entregan testimonio',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P1',objetivo:'Movilidad Real: acompañamiento para transición interna (ascensos) o externa (empleo/emprendimiento).',kpi:'% de inscritos con movilidad positiva',meta:3,real:0,estandar:'Meta 2026: 3%',estado:'definido',nota:null});
+  // P2 — Escuela GEB
+  arr.push({id:id++,pilar:'P2',objetivo:'Diagnóstico Académico: identificar nivel educativo de cada colaborador.',kpi:'% de colaboradores con diagnóstico educativo aplicado',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P2',objetivo:'Alianzas Educativas: convenios con instituciones para primaria, secundaria y prepa flexible.',kpi:'Nº de convenios firmados con instituciones',meta:4,real:1,estandar:'Meta 2026: 4',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P2',objetivo:'Inscripción de Colaboradores: acompañamiento en el proceso de registro escolar.',kpi:'Nº de colaboradores inscritos en programas educativos',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P2',objetivo:'Programa de Tutorías: apoyo académico con facilitadores internos y voluntarios.',kpi:'Tiempo promedio de termino de nivel educativo. Examen aplicado y aprobado',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P2',objetivo:'Reconocimiento Semestral: celebrar logros y avances educativos en juntas y comunicación interna.',kpi:'Nº de colaboradores reconocidos públicamente',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P2',objetivo:'Graduaciones Oficiales: organizar ceremonias internas de entrega de certificados.',kpi:'Nº de graduados por ciclo escolar',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P2',objetivo:'Medición de Rezago Educativo: comparar porcentaje inicial vs. final.',kpi:'% de colaboradores con rezago educativo',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  // P3 — Certificación ESR
+  arr.push({id:id++,pilar:'P3',objetivo:'Diagnóstico ESR Inicial: evaluación de brechas frente a los criterios de Empresa Socialmente Responsable.',kpi:'% de diseño de firma de hospitalidad completado',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Alineación de Iniciativas Sociales: mapear Impulsa GEB, Escuela GEB, Ingreso Mínimo, Salud y Apoyo Humano.',kpi:'% de colaboradores capacitados',meta:100,real:0,estandar:'Meta 2026: 100%',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P3',objetivo:'Gobernanza y Comité ESR: formalizar estructura, roles y responsables.',kpi:'% de colaboradores evaluados aplicando anticipación',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Políticas y Evidencias: documentar políticas, procesos y resultados requeridos para certificación.',kpi:'Nº de wow moments hospitalarios registrados por mes',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Participación de Colaboradores: involucrar al equipo en acciones sociales y voluntariado.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Medición de Impacto Social: indicadores claros de educación, ingreso, bienestar y vivienda digna.',kpi:'Calificación promedio auditorías de hospitalidad',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Postulación a Certificación ESR: integración y envío del expediente oficial.',kpi:'% de colaboradores aprobados en evaluación integral',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Obtención de Certificación ESR: lograr el distintivo como resultado de coherencia y trabajo real.',kpi:'% de colaboradores recertificados',meta:100,real:0,estandar:'Meta 2026: 100%',estado:'definido',nota:null});
+  arr.push({id:id++,pilar:'P3',objetivo:'Comunicación Responsable: narrativa pública sobria, humana y sin marketing vacío.',kpi:'Nº de historias reconocidas al año',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  arr.push({id:id++,pilar:'P3',objetivo:'Mejora Continua y Renovación: evolución anual del modelo de impacto social.',kpi:'% de metas alcanzadas respecto a benchmark global',meta:null,real:null,estandar:null,estado:'borrador',nota:'Meta pendiente de definir con Ceci.'});
+  // P4 — Ingreso Mínimo Digno
+  arr.push({id:id++,pilar:'P4',objetivo:'Definición del Ingreso Mínimo GEB: establecer monto base digno por rol y jornada.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Benchmark y Sustento Técnico: análisis de costo de vida, mercado laboral y realidad GEB.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Segmentación por Rol y Trayectoria: diferenciar ingreso mínimo por nivel, rol y certificaciones.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Vinculación a Desarrollo: ligar el ingreso mínimo a certificaciones internas y formación (Impulsa GEB).',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Comunicación Clara y Transparente: explicar la política al 100% del equipo.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Implementación Progresiva: ajustes salariales por fases según impacto financiero.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Seguimiento Trimestral: revisión de avance, impacto y ajustes necesarios.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Integración con Movilidad Social: ingreso mínimo como base para crecimiento interno o externo.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Evaluación de Impacto Humano: correlación entre ingreso, bienestar, rotación y desempeño.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P4',objetivo:'Ajuste y Evolución del Modelo: mejora anual del esquema según realidad del negocio y personas.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  // P5 — Salud y Bienestar
+  arr.push({id:id++,pilar:'P5',objetivo:'Definición del Modelo de Bienestar GEB: 6 pilares (nutrición, movimiento, sueño, estrés, relaciones, hábitos).',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Diagnóstico Inicial de Bienestar: evaluación física, hábitos y salud emocional básica.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Programa de Movimiento y Actividad Física: acceso guiado a entrenamiento y rutinas personalizadas.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Educación en Nutrición e Hidratación: talleres prácticos y hábitos simples.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Sueño y Recuperación: sesiones educativas y ajustes de hábitos.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Gestión del Estrés y Salud Mental: talleres + acceso a atención psicológica.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Hábitos y Autocuidado: retos de 60 días y acompañamiento conductual.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Seguimiento Trimestral de Bienestar: medición de avances y ajustes.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Integración con Movilidad Social: vincular bienestar con desempeño, certificaciones y crecimiento.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P5',objetivo:'Cultura de Bienestar Vivo: reconocimiento y visibilidad de historias de transformación.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  // P6 — Apoyo Humano y Social
+  arr.push({id:id++,pilar:'P6',objetivo:'Diseño del Modelo de Apoyo Humano GEB: definir qué apoyamos, cómo y bajo qué criterios.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Atención Psicológica: acceso a acompañamiento emocional profesional para colaboradores.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Ruta de Canalización y Confidencialidad: protocolos claros de atención y resguardo de información.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Programa de Donadores de Sangre: crear cultura de solidaridad y apoyo comunitario.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Juguemos por una Causa: evento anual enfocado en vivienda digna y apoyo a colaboradores vulnerables.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Criterios de Asignación Justa: reglas claras para evitar favoritismos y asegurar dignidad.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Acompañamiento Post-Apoyo: seguimiento humano y emocional después del apoyo recibido.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Comunicación con Sentido: compartir historias con respeto, sin exponer ni romantizar el dolor.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P6',objetivo:'Medición de Impacto Humano: evaluar efecto en pertenencia, gratitud y compromiso.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  // P7 — Propósito, Ikigai y Plan de Vida
+  arr.push({id:id++,pilar:'P7',objetivo:'Diseño del Modelo de Propósito GEB: integrar Ikigai, plan de vida y visión de largo plazo.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Sesión Fundacional de Propósito: charla inspiracional (Gerardo Villarreal) sobre vida, trabajo y sentido.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Taller de Ikigai: identificar talentos, vocación, necesidades del mundo y sostenibilidad económica.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Diseño de Plan de Vida: metas personales, profesionales, financieras y de bienestar.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Vinculación con Movilidad Social: conectar plan de vida con Impulsa GEB y rutas de crecimiento.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Acompañamiento Reflexivo: espacios periódicos de reflexión y conversación significativa.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Integración Espiritual (opcional): espacios de reflexión espiritual respetuosa y voluntaria.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Narrativa Personal: escritura o grabación del “antes y después” del colaborador.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Coherencia Vida–Trabajo: revisión de hábitos, decisiones y congruencia con el plan de vida.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+  arr.push({id:id++,pilar:'P7',objetivo:'Cierre y Renovación Anual: revisión del plan de vida y redefinición de metas.',kpi:null,meta:null,real:null,estandar:null,estado:'sin_definir',nota:'KPI pendiente de definir.'});
+
+  return arr;
+})();
+
+/* pct / semáforo — modelo histórico: el "real" vive por mes en state.indicadorHist */
+function getRealMes(ind, mk){
+  mk = mk || ui.mes;
+  const h = state.indicadorHist[mk];
+  if(h && h[ind.id]!=null) return h[ind.id];
+  return null;
+}
+function pctCumplimiento(ind, mk){
+  if(ind.estado==='sin_definir' || ind.estado==='revisar') return null;
+  const real = getRealMes(ind, mk);
+  if(real==null || ind.meta==null || ind.meta===0) return null;
+  return (real/ind.meta)*100;
+}
+function brecha(ind, mk){
+  const p = pctCumplimiento(ind, mk);
+  return p==null ? null : (100-p);
+}
+function semaforo(ind, mk){
+  if(ind.estado==='sin_definir') return 'gris';
+  if(ind.estado==='revisar') return 'azul';
+  if(ind.estado==='borrador') return 'lila';
+  const p = pctCumplimiento(ind, mk);
+  if(p==null) return 'gris';
+  if(p>=90) return 'verde';
+  if(p>=70) return 'ambar';
+  return 'rojo';
+}
+const SEMAFORO_LABEL = {verde:'En meta',ambar:'En riesgo',rojo:'Crítico',gris:'Sin definir',azul:'Por revisar',lila:'Borrador'};
+
+function tieneActividadLigada(indId){
+  return state.actividades.some(a=>a.indicadorId===indId);
+}
+function estadoObjetivo(ind, mk){
+  if(ind.estado==='sin_definir') return 'sin_definir';
+  if(ind.estado==='revisar') return 'revisar';
+  if(ind.estado==='borrador') return 'borrador';
+  if(!tieneActividadLigada(ind.id)) return 'sin_atender';
+  const pct = pctCumplimiento(ind, mk);
+  if(pct==null) return 'trabajando';
+  if(pct<70) return 'critico';
+  if(pct<90) return 'riesgo';
+  return 'meta';
+}
+const ESTADO_OBJETIVO_LABEL = {
+  sin_definir:'Sin definir', revisar:'Por revisar', borrador:'Borrador',
+  sin_atender:'Sin atender', trabajando:'Trabajando', critico:'Crítico', riesgo:'En riesgo', meta:'En meta'
+};
+const ESTADO_OBJETIVO_BADGE = {
+  sin_definir:'gris', revisar:'azul', borrador:'lila',
+  sin_atender:'gris', trabajando:'naranja', critico:'rojo', riesgo:'ambar', meta:'verde'
+};
+
+/* =========================================================
+   MEJORAS 1% — bitácora de propuestas de mejora (UGEB)
+   ========================================================= */
+const PROCESOS_MEJORA = [
+  'Eje 1: Inducción','Eje 2: Servicio al cliente','Eje 3: Movilidad Social','Eje 4: Liderazgo y Estrategia',
+  'Comunicación Interna','Experiencia del colaborador','Iniciativas Humanas','La ventaja competitiva 1%','5´s'
+];
+const SEED_MEJORAS = [
+  {numero:49,status:"Terminado",evidencia:true,sistema:"Una vez",semana:7,fechaInicio:"2026-02-25",dias:14,lider:"Ceci",equipo:"Alex",area:"UGEB",proceso:"Eje 1: Inducción",propuesta:"Realizar diseño de Mapa de Inducción"},
+  {numero:50,status:"Terminado",evidencia:true,sistema:"Una vez",semana:7,fechaInicio:"2026-02-25",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Experiencia del colaborador",propuesta:"Campaña actualización datos Factorial"},
+  {numero:51,status:"Terminado",evidencia:true,sistema:"Una vez",semana:7,fechaInicio:"2026-02-25",dias:7,lider:"Ceci",equipo:"Julia",area:"UGEB",proceso:"La ventaja competitiva 1%",propuesta:"Restructura funcional de archivo Ideas"},
+  {numero:63,status:"Terminado",evidencia:true,sistema:"Una vez",semana:8,fechaInicio:"2026-03-04",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Mapear colaboración con Semáforo de Pobreza para implementar aplicación en GEB"},
+  {numero:64,status:"Terminado",evidencia:true,sistema:"Una vez",semana:8,fechaInicio:"2026-03-04",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Establecer colaboración con BBVA para conferencias y masterclasses en temas Financieros"},
+  {numero:69,status:"Terminado",evidencia:true,sistema:"Sistema",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Formato de asistencia con firmas Escuela GEB"},
+  {numero:70,status:"Terminado",evidencia:true,sistema:"Una vez",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Carpeta por alumno Escuela GEB"},
+  {numero:71,status:"Terminado",evidencia:true,sistema:"Una vez",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Carta de bienvenida a cada participante del programa Impulso GEB y Escuela GEB"},
+  {numero:72,status:"Terminado",evidencia:true,sistema:"Una vez",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:"Julia, Ilse, Alex",area:"UGEB",proceso:"Eje 4: Liderazgo y Estrategia",propuesta:"Solicitar un espacio fijo para UGEB en juntas de enfoque"},
+  {numero:73,status:"Terminado",evidencia:true,sistema:"Una vez",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Cheatsheet para reclutadores con Iniciativas humanas"},
+  {numero:74,status:"Terminado",evidencia:true,sistema:"Una vez",semana:9,fechaInicio:"2026-03-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"La ventaja competitiva 1%",propuesta:"Agregar dentro de sistema la opción de subir ideas para que los demás puedan impulsarlas (repositorio)"},
+  {numero:86,status:"Terminado",evidencia:true,sistema:"Una vez",semana:10,fechaInicio:"2026-03-18",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Lanzar Encuesta de permanencia en grupo de Donadores de sangre"},
+  {numero:87,status:"Terminado",evidencia:true,sistema:"Sistema",semana:10,fechaInicio:"2026-03-18",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Diseñar sistema de gammificación y tablero para Impulso GEB"},
+  {numero:91,status:"Terminado",evidencia:true,sistema:"Una vez",semana:10,fechaInicio:"2026-03-18",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Diseñar carta para Capitanas de integrantes de Impulso GEB, de qué trata, importancia"},
+  {numero:96,status:"Terminado",evidencia:true,sistema:"Una vez",semana:10,fechaInicio:"2026-03-23",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Diseñar e imprimir carteles de lo que se puede reciclar (papel/cartón) para pegarlos en tambos."},
+  {numero:97,status:"Terminado",evidencia:true,sistema:"Una vez",semana:10,fechaInicio:"2026-03-23",dias:21,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 1: Inducción",propuesta:"Mapear realizar colaboración con Global Human Flourishing Study"},
+  {numero:98,status:"Terminado",evidencia:true,sistema:"Una vez",semana:10,fechaInicio:"2026-03-23",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Diseñar carta para Líder de integrantes de Escuela GEB, de qué trata, importancia"},
+  {numero:112,status:"Terminado",evidencia:true,sistema:"Sistema",semana:12,fechaInicio:"2026-04-01",dias:7,lider:"Ceci",equipo:"Alex",area:"UGEB",proceso:"Comunicación Interna",propuesta:"Diseñar mensajes para colaboradores de Atención psicológica que aún no han sido atendidos"},
+  {numero:113,status:"Terminado",evidencia:false,sistema:"Una vez",semana:12,fechaInicio:"2026-04-01",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 4: Liderazgo y Estrategia",propuesta:"Solicitar computadoras para capitanes de orden y limpieza"},
+  {numero:123,status:"Terminado",evidencia:true,sistema:"Una vez",semana:12,fechaInicio:"2026-04-01",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Experiencia del colaborador",propuesta:"Solicitar correos de vivo para capitanes orden y limpieza"},
+  {numero:133,status:"Terminado",evidencia:true,sistema:"Una vez",semana:13,fechaInicio:"2026-04-08",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Para aquellos que presentaron su examen de admisión de la prepa, se les entrega un pequeño obsequio de felicitación"},
+  {numero:137,status:"Terminado",evidencia:true,sistema:"Una vez",semana:13,fechaInicio:"2026-04-08",dias:21,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Realizar sitio de GEB University donde tengamos enlaces usuales y acceso a inscripciones de Iniciativas humanas"},
+  {numero:153,status:"Terminado",evidencia:true,sistema:"Una vez",semana:15,fechaInicio:"2026-04-22",dias:7,lider:"Ceci",equipo:"Alex, Ilse",area:"UGEB",proceso:"5´s",propuesta:"Ordenar y clasificar Canva UGEB"},
+  {numero:154,status:"Terminado",evidencia:false,sistema:"Sistema",semana:15,fechaInicio:"2026-04-22",dias:21,lider:"Ceci",equipo:"Karen",area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Crear muro de reconocimiento para movilidades en puestos y los que están estudiando. En futuro será de graduados de los programas."},
+  {numero:156,status:"Terminado",evidencia:true,sistema:"Sistema",semana:15,fechaInicio:"2026-04-22",dias:21,lider:"Ceci",equipo:"Karen",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Crear biblioteca comunitaria en Universidad."},
+  {numero:157,status:"Terminado",evidencia:true,sistema:"Una vez",semana:15,fechaInicio:"2026-04-22",dias:7,lider:"Ceci",equipo:"Alex, Karen, Tatis, Andy",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Crear un inventario de los esfuerzos de comunicación de iniciativas para unificar look and feel y organizar la evolución."},
+  {numero:160,status:"Terminado",evidencia:true,sistema:"Sistema",semana:15,fechaInicio:"2026-04-22",dias:21,lider:"Ceci",equipo:"Alex, Ilse",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"UX y plantillas de comunicación base para Iniciativas"},
+  {numero:170,status:"Terminado",evidencia:true,sistema:"Una vez",semana:15,fechaInicio:"2026-04-28",dias:14,lider:"Ceci",equipo:"Alex",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Diseñar Flyers de iniciativas humanas para impresión"},
+  {numero:174,status:"Terminado",evidencia:true,sistema:"Una vez",semana:16,fechaInicio:"2026-04-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Para el tema de reciclaje, en Naciones ubicaremos 2 miniacopios de papel en recepción y universidad"},
+  {numero:178,status:"Terminado",evidencia:true,sistema:"Una vez",semana:16,fechaInicio:"2026-05-05",dias:7,lider:"Ceci",equipo:"Alex",area:"UGEB",proceso:"Eje 1: Inducción",propuesta:"Agregar QR de canal de WhatsApp a Inducción"},
+  {numero:190,status:"Terminado",evidencia:true,sistema:"Una vez",semana:17,fechaInicio:"2026-05-11",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Se automatizaron vistas por Iniciativa con contadores y estadísticas, así como una vista rápida por colaborador."},
+  {numero:206,status:"Terminado",evidencia:true,sistema:"Una vez",semana:18,fechaInicio:"2026-05-18",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Se automatiza el proceso de Biblioteca para facilitar la renta, devolución y donación de libros."},
+  {numero:209,status:"En proceso",evidencia:false,sistema:"Una vez",semana:18,fechaInicio:"2026-05-18",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Se pide una estación de reciclaje para Acton"},
+  {numero:217,status:"Terminado",evidencia:true,sistema:"Una vez",semana:20,fechaInicio:"2026-05-27",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Versión 2 de página Iniciativas humanas"},
+  {numero:222,status:"Terminado",evidencia:true,sistema:"Una vez",semana:20,fechaInicio:"2026-06-01",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Home Biblioteca"},
+  {numero:223,status:"Terminado",evidencia:true,sistema:"Una vez",semana:20,fechaInicio:"2026-06-01",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Se coloca QR de Canal de WhatsApp en presentación de Junta de enfoque"},
+  {numero:224,status:"Terminado",evidencia:true,sistema:"Una vez",semana:20,fechaInicio:"2026-06-01",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"UX donadores de sangre terminada, integrada a archivo madre, con botones y automatizaciones"},
+  {numero:230,status:"Terminado",evidencia:true,sistema:"Una vez",semana:21,fechaInicio:"2026-06-08",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Página de reservas para reserva de espacios Universidad"},
+  {numero:231,status:"En proceso",evidencia:false,sistema:"Una vez",semana:21,fechaInicio:"2026-06-08",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Impresión flyers Iniciativas humanas"},
+  {numero:232,status:"En proceso",evidencia:false,sistema:"Una vez",semana:21,fechaInicio:"2026-06-08",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Flyer general de Iniciativas que lleve a sitio"},
+  {numero:233,status:"Terminado",evidencia:false,sistema:"Una vez",semana:21,fechaInicio:"2026-06-08",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"UX atención psicológica y retiros espirituales, integrada a archivo madre, con botones y automatizaciones"},
+  {numero:251,status:"Terminado",evidencia:true,sistema:"Una vez",semana:22,fechaInicio:"2026-06-15",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Linktree UGEB"},
+  {numero:262,status:"En proceso",evidencia:false,sistema:"Una vez",semana:23,fechaInicio:"2026-06-17",dias:21,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Dominios para paginas UGEB"},
+  {numero:267,status:"Terminado",evidencia:false,sistema:"Una vez",semana:23,fechaInicio:"2026-06-19",dias:7,lider:"Ceci",equipo:"Alex, Ilse, Tatis, Andy, Isaac, Julia",area:"UGEB",proceso:"Comunicación Interna",propuesta:"Se realizó un sistema para enviar imágen y texto personalizado de invitación evento aniversario"},
+  {numero:272,status:"Terminado",evidencia:false,sistema:"Una vez",semana:23,fechaInicio:"2026-06-22",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"UX restantes iniciativas escuela geb, impulso geb, beca educativa geb, biblioteca"},
+  {numero:273,status:"Terminado",evidencia:false,sistema:"Sistema",semana:23,fechaInicio:"2026-06-22",dias:14,lider:"Ceci",equipo:"Alex, Ilse",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Panel operativo Iniciativas humanas versión 1"},
+  {numero:274,status:"Terminado",evidencia:false,sistema:"Una vez",semana:23,fechaInicio:"2026-06-22",dias:21,lider:"Ceci",equipo:"Julia",area:"UGEB",proceso:"Comunicación Interna",propuesta:"Intranet para catálogo GEB y formación contínua"},
+  {numero:275,status:"Terminado",evidencia:false,sistema:"Una vez",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:"Alex, Ilse",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Migración de Github todos sitios UGEB"},
+  {numero:276,status:"Terminado",evidencia:false,sistema:"Una vez",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Landing page Impulso versión 1"},
+  {numero:277,status:"Terminado",evidencia:false,sistema:"Una vez",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:"Ilse",area:"UGEB",proceso:"Eje 2: Servicio al cliente",propuesta:"Home Dashboard servicio"},
+  {numero:278,status:"Terminado",evidencia:false,sistema:"Una vez",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Configuración alertas gmail sitio operativo Iniciativas"},
+  {numero:279,status:"Terminado",evidencia:false,sistema:"Sistema",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"5´s",propuesta:"Establecer día de mantenimiento gobernanza digital para UGEB"},
+  {numero:280,status:"Terminado",evidencia:false,sistema:"Una vez",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Agrega botón cancelar eventos en portar del citas"},
+  {numero:281,status:"Terminado",evidencia:false,sistema:"Sistema",semana:24,fechaInicio:"2026-06-29",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"5´s",propuesta:"Documento con contraseñas y accesos UGEB se coloca en linktree interno"},
+  {numero:291,status:"Terminado",evidencia:false,sistema:"Una vez",semana:25,fechaInicio:"2026-07-01",dias:14,lider:"Ceci",equipo:"Ilse",area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Panel operativo Iniciativas humanas versión 2 + retiros, beca, impulso"},
+  {numero:292,status:"En proceso",evidencia:false,sistema:"Una vez",semana:25,fechaInicio:"2026-07-01",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Comunicación Interna",propuesta:"Mejorar UX botón cancelación citas"},
+  {numero:316,status:"Terminado",evidencia:false,sistema:"Sistema",semana:26,fechaInicio:"2026-07-13",dias:1,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Iniciativas Humanas",propuesta:"Las próximas versiones del sitio ya no las pondremos en mejoras, hicimos un proceso que cada viernes hacemos sprint de correcciones"},
+  {numero:317,status:"En proceso",evidencia:false,sistema:"Una vez",semana:26,fechaInicio:"2026-07-13",dias:7,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Plataforma para curso autogestivo"},
+  {numero:323,status:"En proceso",evidencia:false,sistema:"Una vez",semana:27,fechaInicio:"2026-07-15",dias:14,lider:"Ceci",equipo:null,area:"UGEB",proceso:"Eje 3: Movilidad Social",propuesta:"Invitación personalizada para colaboradores clave en Impulso Generación 1 + roles clave"},
+  {numero:324,status:"En proceso",evidencia:false,sistema:"Sistema",semana:27,fechaInicio:"2026-07-15",dias:28,lider:"Ceci",equipo:"Julia",area:"UGEB",proceso:"Eje 4: Liderazgo y Estrategia",propuesta:"Dashboard postventa Center"},
+  {numero:325,status:"En proceso",evidencia:false,sistema:"Sistema",semana:27,fechaInicio:"2026-07-15",dias:28,lider:"Ceci",equipo:"Julia",area:"UGEB",proceso:"Eje 4: Liderazgo y Estrategia",propuesta:"Dashboard leads Center"},
+].map(r=>({...r, id:'mj_'+r.numero, nuevo:false, pilar:clasificarMejoraPilar(r)}));
+
+function clasificarMejoraPilar(m){
+  const texto = (m.propuesta+' '+m.proceso).toLowerCase();
+  const reglas = [
+    [/vacante|mentor[ií]a|ruta de carrera|promoci[oó]n interna|plan individual|semáforo de pobreza|impulso geb|idiomas/,'P1'],
+    [/escuela geb|beca|prepa|rezago educativo|universidad geb/,'P2'],
+    [/\besr\b|certificaci[oó]n esr|gptw|identidad social/,'P3'],
+    [/ingreso m[ií]nimo|salari|prestaci|beneficios econ[oó]micos/,'P4'],
+    [/bienestar|salud preventiva|psicol[oó]gic|fitness|nutrici[oó]n|deportiv/,'P5'],
+    [/donadores de sangre|family|acompañamiento|apoyo human/,'P6'],
+    [/prop[oó]sito|ikigai|plan de vida/,'P7'],
+    [/inteligencia artificial|\bia\b|automatiza|dashboard|panel operativo/,'P8'],
+  ];
+  for(const [rx,pid] of reglas){ if(rx.test(texto)) return pid; }
+  return null; // sin pilar claro — se muestra como "General"
+}
+
+/* =========================================================
+   ESTADO Y PERSISTENCIA
+   ========================================================= */
+let state = {
+  ventajas: SEED_VENTAJAS,
+  pilares: SEED_PILARES,
+  actividades: SEED_ACTIVIDADES,
+  indicadores: SEED_INDICADORES,
+  mejoras: SEED_MEJORAS,
+  config: {horasSemana:30, horasMes:130, meses:[]},
+  bitacora: {},      // { 'YYYY-MM': {tareas:[...]} }
+  unopct: {},        // { 'YYYY-MM': {archivos:[...]} }
+  cierre: {},        // { 'YYYY-MM': {narrativa:''} }
+  indicadorHist: {}  // { 'YYYY-MM': { [indicadorId]: real } }
+};
+
+let ui = {
+  view:'semana',
+  mes: monthKey(new Date()),
+  semanaBase: startOfWeek(new Date()),
+  filtroPrioridad:false,
+  mapaSel:{ventaja:null,pilar:null},
+  indFiltroPilar:'all',
+  indFiltroEstado:'all',
+  showForm:false,
+  formError:'',
+  indEditingId:null,
+  indNewOpen:false,
+  indNewOpenPilar:null,
+  indFormError:'',
+  semanaFormOpen:false,
+  semanaFormError:'',
+  actNewOpen:false,
+  actFormError:'',
+  mejorasFiltroProceso:'all',
+  mejorasFiltroPilar:'all',
+  mejorasFiltroEstado:'all',
+  mejorasNewOpen:false,
+  mejorasFormError:'',
+  pilarExpandido:null,
+  pilarMesExpandido:null,
+  mapaAbiertoEnMes:false,
+  semaforoFiltro:null,
+  objetivoExpandido:null,
+  confirmDelete:null,
+  mesSeccionesColapsadas:{},
+  unopctOpen:false
+};
+
+// ── Supabase config ──────────────────────────────────────────
+const SUPABASE_URL  = 'https://qkzssfpxwzpbsxtyjeqh.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFrenNzZnB4d3pwYnN4dHlqZXFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNTMwOTQsImV4cCI6MjEwMTcyOTA5NH0.3E9dRU8k6FjKliQmmJZJ__lD0HV8I9u0ER2sc-s3rvY';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+async function storeGet(key){
+  const { data, error } = await db
+    .from('tablero_kv')
+    .select('value')
+    .eq('key', key)
+    .single();
+  if(error || !data) throw new Error('empty');
+  return data.value;
+}
+
+async function storeSet(key, value){
+  await db.from('tablero_kv').upsert(
+    { key, value, updated_at: new Date().toISOString() },
+    { onConflict: 'key' }
+  );
+}
+async function getOrSeed(key, seedValue){
+  try{ return await storeGet(key); }
+  catch(e){ await storeSet(key, seedValue); return seedValue; }
+}
+
+async function ensureMonthKnown(mk){
+  if(!state.config.meses.includes(mk)){
+    state.config.meses.push(mk);
+    state.config.meses.sort();
+    await storeSet('config', state.config);
+  }
+}
+
+async function loadCatalogos(){
+  state.ventajas = await getOrSeed('catalogo:ventajas', SEED_VENTAJAS);
+  state.pilares = await getOrSeed('catalogo:pilares', SEED_PILARES);
+  state.actividades = await getOrSeed('catalogo:actividades', SEED_ACTIVIDADES);
+  state.indicadores = await getOrSeed('catalogo:indicadores', SEED_INDICADORES);
+  state.mejoras = await getOrSeed('mejoras', SEED_MEJORAS);
+  state.config = await getOrSeed('config', {horasSemana:30, horasMes:130, meses:[]});
+  if(!state.config.meses) state.config.meses = [];
+  // Limpieza única: borra cualquier catálogo de actividades fijas guardado previamente.
+  if(!state.config.actividadesFijasLimpiadas){
+    state.actividades = [];
+    await storeSet('catalogo:actividades', []);
+    state.config.actividadesFijasLimpiadas = true;
+    await storeSet('config', state.config);
+  }
+  // Migración única: mete los "real" antiguos (a nivel catálogo) al histórico del mes que se está reportando
+  // (el mes anterior al actual: cuando abres el tablero en agosto, reportas julio).
+  if(!state.config.indicadoresMigrados){
+    const mkReporte = addMonths(monthKey(new Date()), -1);
+    await loadMonth(mkReporte);
+    if(!state.indicadorHist[mkReporte]) state.indicadorHist[mkReporte] = {};
+    state.indicadores.forEach(ind=>{
+      if(ind.estado==='definido' && ind.real!=null && state.indicadorHist[mkReporte][ind.id]==null){
+        state.indicadorHist[mkReporte][ind.id] = ind.real;
+      }
+    });
+    await storeSet('indhist:'+mkReporte, state.indicadorHist[mkReporte]);
+    state.config.indicadoresMigrados = true;
+    await storeSet('config', state.config);
+  }
+  // Migración única: si ya había resultados capturados en agosto (mes en curso), los mueve a julio
+  // (el mes que se está presentando), fusionando con lo que ya hubiera en julio.
+  if(!state.config.resultadosMovidosAJulio){
+    const mkDestino = '2026-07', mkOrigen = '2026-08';
+    await loadMonth(mkOrigen); await loadMonth(mkDestino);
+    if(state.indicadorHist[mkOrigen] && Object.keys(state.indicadorHist[mkOrigen]).length){
+      state.indicadorHist[mkDestino] = {...state.indicadorHist[mkOrigen], ...state.indicadorHist[mkDestino]};
+      state.indicadorHist[mkOrigen] = {};
+      await storeSet('indhist:'+mkDestino, state.indicadorHist[mkDestino]);
+      await storeSet('indhist:'+mkOrigen, state.indicadorHist[mkOrigen]);
+    }
+    if(state.bitacora[mkOrigen] && state.bitacora[mkOrigen].tareas.length){
+      state.bitacora[mkDestino].tareas = state.bitacora[mkDestino].tareas.concat(state.bitacora[mkOrigen].tareas);
+      state.bitacora[mkOrigen].tareas = [];
+      await storeSet('bitacora:'+mkDestino, state.bitacora[mkDestino]);
+      await storeSet('bitacora:'+mkOrigen, state.bitacora[mkOrigen]);
+    }
+    if(state.unopct[mkOrigen] && state.unopct[mkOrigen].archivos.length){
+      state.unopct[mkDestino].archivos = state.unopct[mkDestino].archivos.concat(state.unopct[mkOrigen].archivos);
+      state.unopct[mkOrigen].archivos = [];
+      await storeSet('unopct:'+mkDestino, state.unopct[mkDestino]);
+      await storeSet('unopct:'+mkOrigen, state.unopct[mkOrigen]);
+    }
+    if(state.cierre[mkOrigen] && state.cierre[mkOrigen].narrativa && !state.cierre[mkDestino].narrativa){
+      state.cierre[mkDestino].narrativa = state.cierre[mkOrigen].narrativa;
+      state.cierre[mkOrigen].narrativa = '';
+      await storeSet('cierre:'+mkDestino, state.cierre[mkDestino]);
+      await storeSet('cierre:'+mkOrigen, state.cierre[mkOrigen]);
+    }
+    state.config.resultadosMovidosAJulio = true;
+    await storeSet('config', state.config);
+  }
+}
+async function saveIndicadores(){ await storeSet('catalogo:indicadores', state.indicadores); }
+async function saveMejoras(){ await storeSet('mejoras', state.mejoras); }
+
+async function loadMonth(mk){
+  if(state.bitacora[mk] && state.unopct[mk] && state.cierre[mk] && state.indicadorHist[mk]) return;
+  state.bitacora[mk] = await getOrSeed('bitacora:'+mk, {tareas:[]});
+  state.unopct[mk] = await getOrSeed('unopct:'+mk, {archivos:[]});
+  state.cierre[mk] = await getOrSeed('cierre:'+mk, {narrativa:''});
+  state.indicadorHist[mk] = await getOrSeed('indhist:'+mk, {});
+  await ensureMonthKnown(mk);
+}
+async function saveMonth(mk, which){
+  if(which==='bitacora'||!which) await storeSet('bitacora:'+mk, state.bitacora[mk]);
+  if(which==='unopct'||!which) await storeSet('unopct:'+mk, state.unopct[mk]);
+  if(which==='cierre'||!which) await storeSet('cierre:'+mk, state.cierre[mk]);
+  if(which==='indhist'||!which) await storeSet('indhist:'+mk, state.indicadorHist[mk]);
+}
+async function actualizarRealMes(indId, mk, value){
+  await loadMonth(mk);
+  if(!state.indicadorHist[mk]) state.indicadorHist[mk] = {};
+  state.indicadorHist[mk][Number(indId)] = value===''? null : Number(value);
+  await saveMonth(mk,'indhist');
+  renderViewport();
+}
+function getTareas(mk){ return (state.bitacora[mk] && state.bitacora[mk].tareas) || []; }
+
+/* =========================================================
+   CÓMPUTO — carga, agregados
+   ========================================================= */
+function actividadesDe(pilarId){ return state.actividades.filter(a=>a.pilar===pilarId); }
+
+function cargaCatalogoMensual(){
+  return state.actividades.reduce((s,a)=>s+horasMensuales(a),0);
+}
+function cargaCatalogoPorPrioridad(){
+  const out = {Crítica:0,Estratégica:0,Evolutiva:0};
+  state.actividades.forEach(a=>{ out[a.prioridad] = (out[a.prioridad]||0) + horasMensuales(a); });
+  return out;
+}
+function cargaCatalogoPorPilar(){
+  const out = {};
+  state.actividades.forEach(a=>{ out[a.pilar] = (out[a.pilar]||0) + horasMensuales(a); });
+  return out;
+}
+function chipsActividadesSemana(){
+  // semanales siempre; mensuales solo primera semana del mes (heurística: hoy.day<=7 dentro de la semana mostrada)
+  return state.actividades.filter(a=>a.frecuencia==='Semanal');
+}
+function chipsActividadesMensuales(refDate){
+  if(refDate.getDate()>7) return [];
+  return state.actividades.filter(a=>a.frecuencia==='Mensual');
+}
+function tareasDelDia(mk, fechaISO){
+  return getTareas(mk).filter(t=>t.fecha===fechaISO);
+}
+function horasComprometidasSemana(weekStart){
+  let total = state.actividades.reduce((s,a)=>s+horasSemanales(a),0);
+  const weekEnd = addDays(weekStart,6);
+  for(let mkOffset=-1; mkOffset<=1; mkOffset++){
+    const mk = monthKey(addDays(weekStart, mkOffset*20));
+    const tareas = getTareas(mk);
+    tareas.forEach(t=>{
+      const td = parseISO(t.fecha);
+      if(td>=weekStart && td<=weekEnd) total += Number(t.horas)||0;
+    });
+  }
+  return total;
+}
+function horasInvertidasPorPilar(mk){
+  const out = {};
+  getTareas(mk).filter(t=>t.completada).forEach(t=>{ out[t.pilar] = (out[t.pilar]||0) + (Number(t.horas)||0); });
+  return out;
+}
+function horasPorVentaja(){
+  // agrega horas mensuales del catálogo por pilar -> ventaja primaria
+  const porPilar = cargaCatalogoPorPilar();
+  const out = {};
+  state.ventajas.forEach(v=>{ out[v.id]=0; });
+  Object.keys(porPilar).forEach(pid=>{
+    const p = getPilar(pid);
+    if(p && p.ventajaPrimaria!=null){ out[p.ventajaPrimaria] = (out[p.ventajaPrimaria]||0) + porPilar[pid]; }
+  });
+  return out;
+}
+function avancePorPilar(mk){
+  mk = mk || ui.mes;
+  const out = {};
+  state.pilares.forEach(p=>{
+    const inds = state.indicadores.filter(i=>i.pilar===p.id);
+    const medibles = inds.filter(i=>i.estado==='definido' || i.estado==='borrador');
+    const conValor = medibles.filter(i=>pctCumplimiento(i,mk)!=null);
+    const avg = conValor.length ? conValor.reduce((s,i)=>s+pctCumplimiento(i,mk),0)/conValor.length : null;
+    out[p.id] = {avg, total:inds.length, medidos:conValor.length};
+  });
+  return out;
+}
+function contadorSinDefinir(){
+  const total = state.indicadores.length;
+  const sinDef = state.indicadores.filter(i=>i.estado==='sin_definir').length;
+  return {sinDef, total};
+}
+
+/* =========================================================
+   RENDER — shell
+   ========================================================= */
+const VIEWS = [
+  {id:'semana',label:'Semana'},
+  {id:'mes',label:'Mes'}
+];
+
+function renderShell(){
+  const nav = VIEWS.map(v=>`<button class="${ui.view===v.id?'active':''}" data-view="${v.id}">${v.label}</button>`).join('');
+  return `
+  <div class="topbar no-print">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="eyebrow">Eje 3 · Movilidad Social — GEB</span>
+        <span class="title">Tablero de Ceci Lamas</span>
+      </div>
+      <div class="nav">${nav}</div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" id="btnExport">Exportar JSON</button>
+        <button class="btn btn-ghost btn-sm" id="btnImport">Importar JSON</button>
+      </div>
+    </div>
+  </div>
+  <div id="viewport"></div>
+  <footer class="appfoot no-print">Datos sincronizados automáticamente entre tus dispositivos.</footer>
+  `;
+}
+
+function renderViewport(){
+  const el = document.getElementById('viewport');
+  if(!el) return;
+  if(ui.view==='semana') el.innerHTML = renderSemana();
+  else if(ui.view==='mes') el.innerHTML = renderMes();
+  bindViewEvents();
+}
+
+async function setView(v){
+  ui.view = v;
+  await render();
+}
+
+async function render(){
+  document.getElementById('app').innerHTML = renderShell();
+  document.querySelectorAll('.nav button').forEach(b=>{
+    b.addEventListener('click', ()=>setView(b.dataset.view));
+  });
+  document.getElementById('btnExport').addEventListener('click', exportarJSON);
+  document.getElementById('btnImport').addEventListener('click', ()=>document.getElementById('importInput').click());
+  renderViewport();
+}
+
+function bindViewEvents(){
+  if(ui.view==='semana') bindSemanaEvents();
+  else if(ui.view==='mes') bindMesEvents();
+}
+
+function pilarOptions(selected){
+  const opts = state.pilares.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${esc(p.id)} · ${esc(p.nombre)}</option>`).join('');
+  return `<option value="" ${!selected?'selected':''} disabled>Selecciona un pilar…</option>${opts}
+    <option value="TRANSVERSAL" ${selected==='TRANSVERSAL'?'selected':''}>Transversal</option>`;
+}
+function indicadorLabel(ind){
+  const kpi = ind.kpi ? ind.kpi : (ind.objetivo.length>50? ind.objetivo.slice(0,50)+'…' : ind.objetivo);
+  return kpi;
+}
+function indicadorOptions(pilarId, selected){
+  const list = pilarId ? state.indicadores.filter(i=>i.pilar===pilarId) : state.indicadores;
+  if(!list.length) return `<option value="">Este pilar no tiene indicadores todavía</option>`;
+  const opts = list.map(i=>`<option value="${i.id}" ${Number(selected)===i.id?'selected':''}>${esc(indicadorLabel(i))}</option>`).join('');
+  return `<option value="" ${!selected?'selected':''} disabled>Selecciona el indicador al que pega…</option>${opts}`;
+}
+function getIndicador(id){ return state.indicadores.find(i=>i.id===Number(id)); }
+function priClass(pri){
+  if(pri==='Crítica') return 'pri-critica';
+  if(pri==='Estratégica') return 'pri-estrategica';
+  return 'pri-evolutiva';
+}
+
+/* =========================================================
+   ACTIVIDADES FIJAS — crear / eliminar del catálogo
+   ========================================================= */
+const FRECUENCIAS = ['Semanal','Mensual','Trimestral','Semestral','Anual','Por caso','Por proceso'];
+const PRIORIDADES = ['Crítica','Estratégica','Evolutiva'];
+const DECISIONES = ['Crear','Mejorar','Mantener','Automatizar'];
+
+function renderFormNuevaActividad(){
+  return `
+  <div class="card" style="background:var(--card-bg-2);margin-top:12px;">
+    <div class="grid grid-2">
+      <div class="field">
+        <label>Pilar (obligatorio)</label>
+        <select id="afPilar">${pilarOptions('')}</select>
+      </div>
+      <div class="field">
+        <label>Indicador al que pega (obligatorio)</label>
+        <select id="afIndicador">${indicadorOptions('','')}</select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Actividad</label>
+      <input type="text" id="afNombre" placeholder="¿Qué actividad se repite?">
+    </div>
+    <div class="grid grid-2">
+      <div class="field">
+        <label>Frecuencia</label>
+        <select id="afFrecuencia">${FRECUENCIAS.map(f=>`<option value="${f}">${f}</option>`).join('')}</select>
+      </div>
+      <div class="field">
+        <label>Prioridad</label>
+        <select id="afPrioridad">${PRIORIDADES.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="field" style="max-width:220px;">
+      <label>Decisión</label>
+      <select id="afDecision">${DECISIONES.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
+    </div>
+    ${ui.actFormError? `<p class="small" style="color:var(--rojo);">${esc(ui.actFormError)}</p>` : ''}
+    <div class="row" style="margin-top:6px;">
+      <button class="btn btn-primary btn-sm" id="btnGuardarActividad">Guardar actividad fija</button>
+      <button class="btn btn-ghost btn-sm" id="btnCancelarActividad">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function guardarNuevaActividad(){
+  const nombre = document.getElementById('afNombre').value.trim();
+  const pilar = document.getElementById('afPilar').value;
+  const indicadorId = document.getElementById('afIndicador').value;
+  const frecuencia = document.getElementById('afFrecuencia').value;
+  const prioridad = document.getElementById('afPrioridad').value;
+  const decision = document.getElementById('afDecision').value;
+  if(!pilar){ ui.actFormError='Asigna un pilar primero.'; renderViewport(); return; }
+  if(!indicadorId){ ui.actFormError='Selecciona a qué indicador le pega esta actividad.'; renderViewport(); return; }
+  if(!nombre){ ui.actFormError='Escribe el nombre de la actividad.'; renderViewport(); return; }
+  ui.actFormError='';
+  state.actividades.push({
+    id: uid('a'), actividad: nombre, celula: null, pilar, indicadorId: Number(indicadorId), frecuencia, horas: null,
+    prioridad, decision, nueva: true
+  });
+  await storeSet('catalogo:actividades', state.actividades);
+  ui.actNewOpen = false;
+  renderViewport();
+
+}
+async function eliminarActividad(id){
+  state.actividades = state.actividades.filter(a=>a.id!==id);
+  await storeSet('catalogo:actividades', state.actividades);
+
+  renderViewport();
+}
+function bindActividadFormEvents(){
+  const btnGuardar = document.getElementById('btnGuardarActividad');
+  if(btnGuardar) btnGuardar.addEventListener('click', guardarNuevaActividad);
+  const btnCancelar = document.getElementById('btnCancelarActividad');
+  if(btnCancelar) btnCancelar.addEventListener('click', ()=>{ ui.actNewOpen=false; ui.actFormError=''; renderViewport(); });
+  const afPilar = document.getElementById('afPilar');
+  const afIndicador = document.getElementById('afIndicador');
+  if(afPilar && afIndicador){
+    afPilar.addEventListener('change', ()=>{ afIndicador.innerHTML = indicadorOptions(afPilar.value, ''); });
+  }
+}
+
+/* =========================================================
+   VISTA SEMANA
+   ========================================================= */
+function weekMonthKeys(weekStart){
+  const set = new Set();
+  for(let i=0;i<7;i++) set.add(monthKey(addDays(weekStart,i)));
+  return Array.from(set);
+}
+async function ensureWeekLoaded(weekStart){
+  for(const mk of weekMonthKeys(weekStart)) await loadMonth(mk);
+}
+
+async function addTareaFromChip(actId, fechaISO, autoComplete){
+  const act = state.actividades.find(a=>a.id===actId);
+  if(!act) return;
+  const mk = monthKey(parseISO(fechaISO));
+  await loadMonth(mk);
+  const tarea = {
+    id: uid('t'), titulo: act.actividad, pilar: act.pilar, horas: act.horas,
+    fecha: fechaISO, completada: !!autoComplete, prioridad: act.prioridad,
+    origenActividadId: act.id
+  };
+  state.bitacora[mk].tareas.push(tarea);
+  await saveMonth(mk,'bitacora');
+  renderViewport();
+}
+
+async function toggleTarea(id, mk){
+  await loadMonth(mk);
+  const t = getTareas(mk).find(x=>x.id===id);
+  if(!t) return;
+  t.completada = !t.completada;
+  await saveMonth(mk,'bitacora');
+  renderViewport();
+}
+async function deleteTarea(id, mk){
+  await loadMonth(mk);
+  state.bitacora[mk].tareas = getTareas(mk).filter(x=>x.id!==id);
+  await saveMonth(mk,'bitacora');
+  renderViewport();
+}
+
+function unopctMonthKey(){ return monthKey(ui.semanaBase); }
+
+function deleteBtnHtml(type, id, title){
+  const confirming = ui.confirmDelete && ui.confirmDelete.type===type && String(ui.confirmDelete.id)===String(id);
+  if(confirming){
+    return `<button class="iconbtn" data-confirm-del="${type}:${id}" style="color:var(--rojo);font-weight:700;font-size:11px;white-space:nowrap;" title="Clic de nuevo para confirmar">¿Seguro? ×</button>`;
+  }
+  return `<button class="iconbtn" data-ask-del="${type}:${id}" title="${title||'Eliminar'}">×</button>`;
+}
+function bindDeleteConfirmEvents(){
+  document.querySelectorAll('[data-ask-del]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const [type,id] = el.dataset.askDel.split(':');
+      ui.confirmDelete = {type, id};
+      renderViewport();
+      setTimeout(()=>{
+        if(ui.confirmDelete && ui.confirmDelete.type===type && String(ui.confirmDelete.id)===id){
+          ui.confirmDelete = null;
+          renderViewport();
+        }
+      }, 3000);
+    });
+  });
+  document.querySelectorAll('[data-confirm-del]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const [type,id] = el.dataset.confirmDel.split(':');
+      ui.confirmDelete = null;
+      if(type==='act') eliminarActividad(id);
+      else if(type==='ind') eliminarIndicador(id);
+      else if(type==='mejora') eliminarMejora(id);
+    });
+  });
+}
+
+function pilarColorVar(pid){
+  if(pid && /^P[1-8]$/.test(pid)) return `var(--${pid.toLowerCase()})`;
+  return 'var(--gris)';
+}
+function pilarInkVar(pid){
+  if(pid && /^P[1-8]$/.test(pid)) return `var(--${pid.toLowerCase()}-ink)`;
+  return '#fff';
+}
+
+
+function renderMejorasBanda(mejActivas, days){
+  if(!mejActivas.length) return '';
+  const bands = mejActivas.map(m=>{
+    const d1=isoDate(addDays(parseISO(m.fechaInicio),m.dias||0));
+    let s=-1,e=-1;
+    days.forEach((d,i)=>{const iso=isoDate(d);if(iso>=m.fechaInicio&&iso<=d1){if(s<0)s=i;e=i;}});
+    if(s<0) return '';
+    const c0=s+1,c1=e+2;
+    const txt=m.propuesta.length>38?m.propuesta.slice(0,36)+'…':m.propuesta;
+    return '<div class="mejora-band" title="'+esc(m.propuesta)+
+           '" style="grid-column:'+c0+'/'+c1+';">✦ '+esc(txt)+'</div>';
+  }).join('');
+  if(!bands.trim()) return '';
+  return '<div style="margin-bottom:12px;"><div class="small muted" style="margin-bottom:5px;font-weight:600;">'+
+         'Mejoras 1% activas esta semana</div>'+
+         '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">'+bands+'</div></div>';
+}
+
+function renderSemana(){
+  const weekStart = ui.semanaBase;
+  const days = [...Array(7)].map((_,i)=>addDays(weekStart,i));
+  const today = new Date();
+  const todayISO = isoDate(today);
+  const esSemanaActual = days.some(d=>isoDate(d)===todayISO);
+  let chips = state.actividades.slice();
+  if(ui.filtroPrioridad) chips = chips.filter(a=>a.prioridad==='Crítica');
+  // Activities already scheduled on any day of this displayed week
+  const yaAgregadasSemana = new Set(
+    days.flatMap(d=>{
+      const iso=isoDate(d); const mk2=monthKey(d);
+      return getTareas(mk2).filter(t=>t.origenActividadId&&t.fecha===iso).map(t=>t.origenActividadId);
+    })
+  );
+
+  const semStart = isoDate(weekStart);
+  const semEnd   = isoDate(addDays(weekStart,6));
+  const cols = days.map(d=>{
+    const iso = isoDate(d);
+    const mk = monthKey(d);
+    const tareas = tareasDelDia(mk, iso);
+    return `
+    <div class="day-col ${iso===todayISO?'today':''}" data-day-drop="${iso}">
+      <div class="day-head">${dayLabel(d)}${iso===todayISO?' · hoy':''}<br><b>${d.getDate()} ${monthLabel(mk).split(' ')[0]}</b></div>
+      ${tareas.map(t=>`
+        <div class="mini-task" draggable="true" data-drag-week-task="${t.id}" data-drag-week-mk="${mk}" style="--mini-color:${pilarColorVar(t.pilar)};">
+          <div class="row-between" style="gap:6px;">
+            <span class="checkbox ${t.completada?'done':''}" data-toggle-task="${t.id}" data-mk="${mk}" style="width:16px;height:16px;"></span>
+            <span style="flex:1;${t.completada?'text-decoration:line-through;color:var(--text-3);':''}">${esc(t.titulo)}</span>
+            <button class="iconbtn" data-del-task="${t.id}" data-mk="${mk}">×</button>
+          </div>
+          <div class="small muted">${esc(getPilar(t.pilar)?.id||t.pilar)}</div>
+        </div>`).join('')}
+      ${!tareas.length?'<div class="small muted">Sin tareas — arrastra aquí una actividad</div>':''}
+    </div>`;
+  }).join('');
+
+  const mkUno = unopctMonthKey();
+  const unopct = state.unopct[mkUno] || {archivos:[]};
+
+  return `
+  <div class="row-between" style="margin-bottom:16px;">
+    <div>
+      <div class="section-title" style="margin-bottom:2px;">Semana</div>
+      <h2 style="margin:0;">${weekStart.getDate()} ${monthLabel(monthKey(weekStart)).split(' ')[0]} – ${addDays(weekStart,6).getDate()} ${monthLabel(monthKey(addDays(weekStart,6))).split(' ')[0]}</h2>
+      ${esSemanaActual? `<p class="muted small" style="margin:4px 0 0;text-transform:capitalize;">Hoy es ${dayLabel(today)} ${today.getDate()}</p>` : ''}
+    </div>
+    <div class="row">
+      <button class="toggle ${ui.filtroPrioridad?'on':''}" id="toggleFiltro">Solo críticas</button>
+      <button class="btn btn-ghost btn-sm" id="btnToggleCaptura">📎 Capturar 1%</button>
+      <button class="btn btn-ghost btn-sm" id="btnSemPrev">‹ anterior</button>
+      <button class="btn btn-ghost btn-sm" id="btnSemHoy">esta semana</button>
+      <button class="btn btn-ghost btn-sm" id="btnSemNext">siguiente ›</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row-between">
+      <div class="section-title" style="margin:0;">Actividades por pilar</div>
+      <button class="btn btn-ghost btn-sm" id="btnNuevaActividad">+ actividad avanzada</button>
+    </div>
+    <p class="small muted" style="margin:6px 0 14px;">Toca un pilar para ver sus actividades. Arrástralas a un día de la semana, o escribe una nueva ahí mismo.</p>
+    ${ui.actNewOpen? renderFormNuevaActividad() : ''}
+    <div class="pilar-picker">
+      ${state.pilares.map(p=>{
+        const n = actividadesDe(p.id).length;
+        return `<button type="button" class="pilar-swatch ${ui.pilarExpandido===p.id?'open':''}" data-pilar-toggle="${p.id}"
+          style="--swatch-color:${pilarColorVar(p.id)};--swatch-ink:${pilarInkVar(p.id)};">
+          <span class="pcount">${n}</span>
+          <span class="pid">${p.id}</span>
+          <span class="pname">${esc(p.nombre)}</span>
+        </button>`;
+      }).join('')}
+    </div>
+    ${ui.pilarExpandido? renderPanelPilar(ui.pilarExpandido, days, todayISO, yaAgregadasSemana) : ''}
+  </div>
+
+  <div class="card">
+    <div class="section-title">Distribución de la semana</div>
+    <div class="week-grid">${cols}</div>
+  </div>
+
+  ${ui.unopctOpen?`<div class="card" style="padding:14px 16px;">
+    <div class="row-between" style="margin-bottom:10px;">
+      <div class="section-title" style="margin:0;">Capturar mejoras del 1%</div>
+      <button class="btn btn-ghost btn-sm" id="btnToggleCaptura">▴ Cerrar</button>
+    </div>
+    <p class="small muted">Pega los nombres de archivo del Excel (uno por línea); se clasifican por pilar automáticamente.</p>
+    <textarea id="unopctText" placeholder="beca-maria-lopez.pdf&#10;automatizacion-ia.docx&#10;" style="margin-top:6px;"></textarea>
+    <div class="row" style="margin-top:8px;"><button class="btn btn-primary btn-sm" id="btnProcesarUno">Procesar</button></div>
+    ${unopct.archivos.length?'<div class="hr"></div><div class="tbl-wrap"><table><thead><tr><th>Archivo</th><th>Pilar</th><th></th></tr></thead><tbody>'+
+      unopct.archivos.map((a,idx)=>'<tr><td>'+esc(a.nombre)+'</td><td><select data-uno-pilar="'+idx+'">'+pilarOptions(a.pilar)+'<option value=""'+((!a.pilar)?' selected':'')+'>Sin clasificar</option></select></td><td><button class="iconbtn" data-uno-del="'+idx+'">×</button></td></tr>').join('')+
+    '</tbody></table></div>':''}
+  </div>`:''}
+
+  `;
+}
+
+async function moverTarea(id, mk, nuevaFechaISO){
+  await loadMonth(mk);
+  const nuevoMk = monthKey(parseISO(nuevaFechaISO));
+  await loadMonth(nuevoMk);
+  const t = getTareas(mk).find(x=>x.id===id);
+  if(!t) return;
+  if(nuevoMk!==mk){
+    state.bitacora[mk].tareas = getTareas(mk).filter(x=>x.id!==id);
+    t.fecha = nuevaFechaISO;
+    state.bitacora[nuevoMk].tareas.push(t);
+    await saveMonth(mk,'bitacora'); await saveMonth(nuevoMk,'bitacora');
+  } else {
+    t.fecha = nuevaFechaISO;
+    await saveMonth(mk,'bitacora');
+  }
+  renderViewport();
+}
+
+function renderPanelPilar(pid, days, todayISO, yaAgregadasSemana){
+  const p = getPilar(pid);
+  if(!p) return '';
+  let acts = actividadesDe(pid).filter(a=>!yaAgregadasSemana.has(a.id));
+  if(ui.filtroPrioridad) acts = acts.filter(a=>a.prioridad==='Crítica');
+  const colorVar = pilarColorVar(pid);
+  const indsPilar = state.indicadores.filter(i=>i.pilar===pid);
+  return `
+  <div class="pilar-panel" style="--panel-color:${colorVar};">
+    <div class="panel-head">
+      <span class="dot"></span>
+      <div>
+        <div style="font-weight:700;">${p.id} · ${esc(p.nombre)}</div>
+        <div class="small muted">Arrastra una actividad a un día de la semana, o escribe una nueva aquí.</div>
+      </div>
+    </div>
+    <div class="nueva-row" style="flex-wrap:wrap;">
+      <span class="tag tag-nueva">Nueva</span>
+      <select data-nueva-pilar-indicador="${pid}" style="max-width:220px;">${indicadorOptions(pid,'')}</select>
+      <input type="text" placeholder="Escribe la actividad y presiona Enter…" data-nueva-input="${pid}" style="flex:1;min-width:140px;">
+    </div>
+    ${!indsPilar.length? `<p class="small" style="color:var(--rojo);margin-top:-4px;">Este pilar no tiene indicadores todavía — créalo primero.</p>`:''}
+    <div>
+      ${acts.length? acts.map(a=>{
+        // Skip activities already placed in any day of this week
+        const ind = a.indicadorId ? getIndicador(a.indicadorId) : null;
+        return `<span class="activity-chip" draggable="true" data-drag-act="${a.id}" title="Arrastra al día de la semana">
+          <span class="dot"></span>
+          <span>
+            ${esc(a.actividad)}
+            <span class="muted" style="font-size:11px;display:block;">${ind? '→ '+esc(indicadorLabel(ind)) : '· '+esc(a.frecuencia)}</span>
+          </span>
+        </span>`;
+      }).join('') : '<p class="small muted">Aún no hay actividades en este pilar — escribe la primera arriba, en "Nueva".</p>'}
+    </div>
+  </div>`;
+}
+
+async function crearActividadRapida(pid, indicadorId, titulo){
+  titulo = titulo.trim();
+  if(!titulo || !indicadorId) return;
+  state.actividades.push({
+    id: uid('a'), actividad: titulo, celula: null, pilar: pid, indicadorId: Number(indicadorId), frecuencia:'Mensual',
+    horas: null, prioridad:'Estratégica', decision:'Crear', nueva: true
+  });
+  await storeSet('catalogo:actividades', state.actividades);
+  renderViewport();
+}
+
+function renderFormTareaSemana(days){
+  const todayISO = isoDate(new Date());
+  const defaultDia = days.some(d=>isoDate(d)===todayISO) ? todayISO : isoDate(days[0]);
+  return `
+  <div class="card" style="background:var(--card-bg-2);margin-top:12px;">
+    <div class="grid grid-2">
+      <div class="field">
+        <label>Título</label>
+        <input type="text" id="wsTitulo" placeholder="¿Qué hay que hacer?">
+      </div>
+      <div class="field">
+        <label>Tema / pilar (obligatorio)</label>
+        <select id="wsPilar">${pilarOptions('')}</select>
+      </div>
+    </div>
+
+    ${ui.semanaFormError? `<p class="small" style="color:var(--rojo);">${esc(ui.semanaFormError)}</p>` : ''}
+    <div class="row" style="margin-top:6px;">
+      <button class="btn btn-primary btn-sm" id="btnGuardarTareaSemana">Guardar tarea</button>
+      <button class="btn btn-ghost btn-sm" id="btnCancelarTareaSemana">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function guardarTareaFormSemana(){
+  const titulo = document.getElementById('wsTitulo').value.trim();
+  const pilar = document.getElementById('wsPilar').value;
+  const _wd=ui.semanaBase,_days=[...Array(7)].map((_,i)=>addDays(_wd,i)),_t=isoDate(new Date());
+  const fecha=_days.some(d=>isoDate(d)===_t)?_t:isoDate(_days[0]);
+  if(!pilar){ ui.semanaFormError='Asigna un tema (pilar); sin él la tarea no sube al reporte.'; renderViewport(); return; }
+  if(!titulo){ ui.semanaFormError='Escribe un título para la tarea.'; renderViewport(); return; }
+  ui.semanaFormError='';
+  const mk = monthKey(parseISO(fecha));
+  await loadMonth(mk);
+  state.bitacora[mk].tareas.push({id:uid('t'),titulo,pilar,horas:null,fecha,completada:false,prioridad:null,origenActividadId:null});
+  await saveMonth(mk,'bitacora');
+  ui.semanaFormOpen = false;
+  renderViewport();
+}
+
+async function procesarUnoPct(){
+  const mk = unopctMonthKey();
+  const raw = document.getElementById('unopctText').value;
+  const lineas = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lineas.length) return;
+  await loadMonth(mk);
+  lineas.forEach(nombre=>{
+    state.unopct[mk].archivos.push({nombre, pilar: clasificarArchivo(nombre)});
+  });
+  await saveMonth(mk,'unopct');
+  renderViewport();
+}
+async function actualizarUnoPilar(idx, pilar){
+  const mk = unopctMonthKey(); await loadMonth(mk);
+  if(state.unopct[mk].archivos[idx]) state.unopct[mk].archivos[idx].pilar = pilar;
+  await saveMonth(mk,'unopct');
+  renderViewport();
+}
+async function eliminarUnoArchivo(idx){
+  const mk = unopctMonthKey(); await loadMonth(mk);
+  state.unopct[mk].archivos.splice(idx,1);
+  await saveMonth(mk,'unopct');
+  renderViewport();
+}
+
+function bindSemanaEvents(){
+  bindDeleteConfirmEvents();
+  const btnPrev = document.getElementById('btnSemPrev');
+  const btnNext = document.getElementById('btnSemNext');
+  const btnHoy = document.getElementById('btnSemHoy');
+  const toggleFiltro = document.getElementById('toggleFiltro');
+  if(toggleFiltro) toggleFiltro.addEventListener('click', ()=>{ ui.filtroPrioridad=!ui.filtroPrioridad; renderViewport(); });
+  const btnNuevaAct = document.getElementById('btnNuevaActividad');
+  if(btnNuevaAct) btnNuevaAct.addEventListener('click', ()=>{ ui.actNewOpen=!ui.actNewOpen; ui.actFormError=''; renderViewport(); });
+  bindActividadFormEvents();
+
+  document.querySelectorAll('[data-pilar-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const pid = el.dataset.pilarToggle;
+      ui.pilarExpandido = (ui.pilarExpandido===pid) ? null : pid;
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-nueva-input]').forEach(el=>{
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const pid = el.dataset.nuevaInput;
+        const sel = document.querySelector(`[data-nueva-pilar-indicador="${pid}"]`);
+        const indicadorId = sel ? sel.value : '';
+        if(!indicadorId){ sel.style.borderColor='var(--rojo)'; sel.focus(); return; }
+        crearActividadRapida(pid, indicadorId, el.value);
+      }
+    });
+  });
+  document.querySelectorAll('[data-drag-act]').forEach(el=>{
+    el.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', el.dataset.dragAct);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  });
+  document.querySelectorAll('[data-day-drop]').forEach(el=>{
+    el.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='copy'; el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', ()=>{ el.classList.remove('drag-over'); });
+    el.addEventListener('drop', e=>{
+      e.preventDefault(); el.classList.remove('drag-over');
+      const actId = e.dataTransfer.getData('text/plain');
+      if(actId) addTareaFromChip(actId, el.dataset.dayDrop, false);
+    });
+  });
+
+  if(btnPrev) btnPrev.addEventListener('click', async ()=>{ ui.semanaBase = addDays(ui.semanaBase,-7); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
+  if(btnNext) btnNext.addEventListener('click', async ()=>{ ui.semanaBase = addDays(ui.semanaBase,7); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
+  if(btnHoy) btnHoy.addEventListener('click', async ()=>{ ui.semanaBase = startOfWeek(new Date()); await ensureWeekLoaded(ui.semanaBase); renderViewport(); });
+
+  const btnCap = document.getElementById('btnToggleCaptura');
+  if(btnCap) btnCap.addEventListener('click',()=>{ ui.unopctOpen=!ui.unopctOpen; renderViewport(); });
+  const _bNS=document.getElementById('btnNuevaMejoraS');
+  if(_bNS) _bNS.addEventListener('click',()=>{ ui.mejorasNewOpen=!ui.mejorasNewOpen; ui.mejorasFormError=''; renderViewport(); });
+  const _bGMS=document.getElementById('btnGuardarMejora');
+  if(_bGMS) _bGMS.addEventListener('click',guardarNuevaMejora);
+  const _bCMS=document.getElementById('btnCancelarMejora');
+  if(_bCMS) _bCMS.addEventListener('click',()=>{ ui.mejorasNewOpen=false; ui.mejorasFormError=''; renderViewport(); });
+  document.querySelectorAll('[data-mejora-pilar]').forEach(el2=>{ el2.addEventListener('change',()=>actualizarMejoraPilar(el2.dataset.mejoraPilar,el2.value)); });
+  document.querySelectorAll('[data-drag-week-task]').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('text/plain',JSON.stringify({type:'task',id:el.dataset.dragWeekTask,mk:el.dataset.dragWeekMk}));
+      e.dataTransfer.effectAllowed='move';
+    });
+  });
+  document.querySelectorAll('[data-day-drop]').forEach(el=>{
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});
+    el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();el.classList.remove('drag-over');
+      const raw=e.dataTransfer.getData('text/plain');if(!raw)return;
+      try{const d=JSON.parse(raw);if(d.type==='task') moverTarea(d.id,d.mk,el.dataset.dayDrop);}catch{}
+    });
+  });
+  document.querySelectorAll('[data-toggle-task]').forEach(el=>{
+    el.addEventListener('click', ()=>toggleTarea(el.dataset.toggleTask, el.dataset.mk));
+  });
+  document.querySelectorAll('[data-del-task]').forEach(el=>{
+    el.addEventListener('click', ()=>deleteTarea(el.dataset.delTask, el.dataset.mk));
+  });
+
+  document.querySelectorAll('[data-chip-week-add]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const sel = document.querySelector(`[data-chip-day="${el.dataset.chipWeekAdd}"]`);
+      const fecha = sel ? sel.value : isoDate(ui.semanaBase);
+      addTareaFromChip(el.dataset.chipWeekAdd, fecha, false);
+    });
+  });
+  document.querySelectorAll('[data-chip-week-done]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const sel = document.querySelector(`[data-chip-day="${el.dataset.chipWeekDone}"]`);
+      const fecha = sel ? sel.value : isoDate(ui.semanaBase);
+      addTareaFromChip(el.dataset.chipWeekDone, fecha, true);
+    });
+  });
+
+  const btnProcesar = document.getElementById('btnProcesarUno');
+  if(btnProcesar) btnProcesar.addEventListener('click', procesarUnoPct);
+  document.querySelectorAll('[data-uno-pilar]').forEach(el=>{
+    el.addEventListener('change', ()=>actualizarUnoPilar(Number(el.dataset.unoPilar), el.value));
+  });
+  document.querySelectorAll('[data-uno-del]').forEach(el=>{
+    el.addEventListener('click', ()=>eliminarUnoArchivo(Number(el.dataset.unoDel)));
+  });
+}
+
+/* =========================================================
+   VISTA MES
+   ========================================================= */
+const KEYWORD_PILAR = [
+  [/beca|escuela|prepa|rezago/i,'P2'],
+  [/\bia\b|automatiz|prompt|claude|ia\.|inteligencia artificial/i,'P8'],
+  [/bienestar|salud|psicol|fitness|nutric/i,'P5'],
+  [/family|apoyo|emocional/i,'P6'],
+  [/ingreso|salario|prestac|beneficio/i,'P4'],
+  [/esr|certificaci|gptw|hospitalidad/i,'P3'],
+  [/ikigai|prop[oó]sito|plan de vida/i,'P7'],
+  [/vacante|mentor[ií]a|carrera|idioma|semáforo|semaforo/i,'P1']
+];
+function clasificarArchivo(nombre){
+  for(const [rx,pid] of KEYWORD_PILAR){ if(rx.test(nombre)) return pid; }
+  return '';
+}
+
+/* =========================================================
+   VISTA MES — unificada (KPIs por pilar, acciones, mejoras 1%, mapa)
+   ========================================================= */
+function estadoPilarInfo(avg){
+  if(avg==null) return {color:'gris', label:'Sin datos'};
+  if(avg>=90) return {color:'verde', label:'En meta'};
+  if(avg>=70) return {color:'ambar', label:'En riesgo'};
+  return {color:'rojo', label:'Crítico'};
+}
+function svgDonut(pct, size){
+  size = size || 56;
+  const r = size/2 - 6;
+  const c = 2*Math.PI*r;
+  const p = pct==null ? 0 : clamp(pct,0,100);
+  const dash = (p/100)*c;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="flex:none;">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="6"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="currentColor" stroke-width="6"
+      stroke-dasharray="${dash.toFixed(1)} ${c.toFixed(1)}" stroke-linecap="round"
+      transform="rotate(-90 ${(size/2).toFixed(1)} ${(size/2).toFixed(1)})"/>
+    <text x="${size/2}" y="${size/2+4}" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor" font-family="var(--font-display)">${pct==null?'—':Math.round(pct)+'%'}</text>
+  </svg>`;
+}
+function ventajaIcon(size){
+  size = size||13;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="currentColor" style="flex:none;"><path d="M12 2 L14.3 9.7 L22 12 L14.3 14.3 L12 22 L9.7 14.3 L2 12 L9.7 9.7 Z"/></svg>`;
+}
+function renderPilarCardMes(p, mk, avanceObj){
+  const info = estadoPilarInfo(avanceObj.avg);
+  const prevMk = addMonths(mk,-1);
+  const avancePrev = avancePorPilar(prevMk)[p.id];
+  let deltaTxt = '';
+  if(avanceObj.avg!=null && avancePrev.avg!=null){
+    const d = Math.round(avanceObj.avg-avancePrev.avg);
+    const arrow = d>0?'▲':(d<0?'▼':'●');
+    deltaTxt = `${arrow} ${Math.abs(d)} pts vs mes anterior`;
+  }
+  const ventaja = p.ventajaPrimaria!=null ? getVentaja(p.ventajaPrimaria) : null;
+  const accionesMes = getTareas(mk).filter(t=>t.pilar===p.id && t.completada).length;
+  return `
+  <button type="button" class="pilar-mes-card ${ui.pilarMesExpandido===p.id?'open':''}" data-pilar-mes-toggle="${p.id}" style="--card-color:${pilarColorVar(p.id)};--card-ink:${pilarInkVar(p.id)};">
+    <div class="row-between" style="align-items:flex-start;">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:15px;">${p.id} · ${esc(p.nombre)}</div>
+        ${ventaja? `<span class="ventaja-chip">${ventajaIcon(11)}${esc(ventaja.nombre)}</span>`:''}
+      </div>
+      ${svgDonut(avanceObj.avg,56)}
+    </div>
+    <div class="row" style="margin-top:10px;flex-wrap:wrap;gap:8px;">
+      <span class="status-pill"><span class="dot" style="background:var(--${info.color});"></span>${info.label}</span>
+    </div>
+    ${deltaTxt? `<div class="small" style="margin-top:6px;opacity:.9;">${deltaTxt}</div>`:''}
+    <div class="row-between small" style="margin-top:10px;opacity:.9;">
+      <span>${avanceObj.medidos}/${avanceObj.total} KPIs medidos</span>
+      <span>${accionesMes} acción(es) del mes</span>
+    </div>
+  </button>`;
+}
+function renderTablaMejorasCompleta(){
+  let list = state.mejoras.slice().sort((a,b)=> b.fechaInicio.localeCompare(a.fechaInicio) || b.numero-a.numero);
+  if(ui.mejorasFiltroProceso!=='all') list = list.filter(m=>m.proceso===ui.mejorasFiltroProceso);
+  if(ui.mejorasFiltroPilar!=='all') list = list.filter(m=> ui.mejorasFiltroPilar==='general' ? !m.pilar : m.pilar===ui.mejorasFiltroPilar);
+  const grupos = {};
+  list.forEach(m=>{
+    const mk = monthKey(parseISO(m.fechaInicio));
+    (grupos[mk]=grupos[mk]||[]).push(m);
+  });
+  const meses = Object.keys(grupos).sort().reverse();
+  if(!meses.length) return '<div class="empty">Sin resultados con estos filtros.</div>';
+  return meses.map(mk=>`
+    <div style="margin-top:16px;">
+      <div class="small" style="font-weight:700;color:var(--dark-blue);text-transform:capitalize;margin-bottom:6px;">${monthLabel(mk)} · ${grupos[mk].length}</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Proceso</th><th>Propuesta</th><th>Líder/equipo</th><th>Pilar Eje 3</th><th></th></tr></thead>
+        <tbody>${grupos[mk].map(m=>`
+          <tr>
+            <td class="small">${m.fechaInicio}</td>
+            <td class="small">${esc(m.proceso)}</td><td style="max-width:230px;">${esc(m.propuesta)}</td>
+            <td class="small muted">${esc(m.lider)}${m.equipo?' · '+esc(m.equipo):''}</td>
+            <td><select data-mejora-pilar="${m.id}" style="font-size:11px;padding:4px 6px;">${mejoraPilarOptions(m.pilar||'')}</select></td>
+            <td>${deleteBtnHtml('mejora', m.id, 'Eliminar')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`).join('');
+}
+function renderObjetivoRow(ind, mk){
+  const key = estadoObjetivo(ind, mk);
+  const badge = ESTADO_OBJETIVO_BADGE[key];
+  const abierto = ui.objetivoExpandido===ind.id;
+  const acciones = getTareas(mk).filter(t=>{
+    const act = t.origenActividadId ? state.actividades.find(a=>a.id===t.origenActividadId) : null;
+    return act && act.indicadorId===ind.id;
+  });
+  return `
+  <div class="objetivo-row">
+    <button type="button" class="objetivo-row-head" data-objetivo-toggle="${ind.id}">
+      <span class="badge badge-${badge}" style="flex:none;">${ESTADO_OBJETIVO_LABEL[key]}</span>
+      <span style="flex:1;">${esc(ind.objetivo)}</span>
+      <span class="small muted" style="flex:none;">${acciones.length} acción(es)</span>
+    </button>
+    ${abierto? `<div class="objetivo-actions">
+      ${ind.kpi? `<div class="small muted" style="margin-bottom:6px;">${esc(ind.kpi)}</div>`:''}
+      ${acciones.length? acciones.sort((a,b)=>a.fecha.localeCompare(b.fecha)).map(t=>`<div class="row-between small" style="padding:5px 0;border-bottom:1px solid var(--border);">
+        <span>${esc(t.titulo)} <span class="muted">· ${t.fecha}</span></span><span class="badge badge-${t.completada?'verde':'gris'}">${t.completada?'Hecha':'Pendiente'}</span>
+      </div>`).join('') : '<p class="small muted" style="padding:6px 0;margin:0;">Sin actividades registradas este mes para este objetivo.</p>'}
+    </div>` : ''}
+  </div>`;
+}
+function renderSemaforoVisual(pid, mk){
+  const inds = state.indicadores.filter(i=>i.pilar===pid);
+  // 3 buckets — independent from indicator detail states
+  const BUCKETS = {
+    atrasado: { label:'Atrasado', badge:'rojo', states:['critico','riesgo'] },
+    en_proceso: { label:'En proceso', badge:'naranja', states:['trabajando','revisar','meta'] },
+    sin_atencion: { label:'Sin atención', badge:'gris', states:['sin_atender','sin_definir','borrador'] }
+  };
+  const bucketOf = i => {
+    const s = estadoObjetivo(i, mk);
+    for(const [k,b] of Object.entries(BUCKETS)) if(b.states.includes(s)) return k;
+    return 'sin_atencion';
+  };
+  const grupos3 = { atrasado:[], en_proceso:[], sin_atencion:[] };
+  inds.forEach(i=>grupos3[bucketOf(i)].push(i));
+
+  const chips = Object.entries(BUCKETS).filter(([k])=>grupos3[k].length).map(([k,b])=>{
+    const activo = ui.semaforoFiltro===k;
+    return '<button type="button" class="semaforo-chip badge-'+b.badge+' '+(activo?'active':'')+'" data-semaforo-filtro="'+k+'">'+
+           '<b>'+grupos3[k].length+'</b> '+b.label+'</button>';
+  }).join('');
+
+  const filtroActivo = ui.semaforoFiltro && grupos3[ui.semaforoFiltro] ? ui.semaforoFiltro : null;
+  const lista = filtroActivo ? grupos3[filtroActivo] : inds;
+  return '<div class="section-title">Semáforo general</div>'+
+    '<p class="small muted" style="margin-top:-6px;">Toca una categoría para filtrar, y un objetivo para ver sus acciones del mes.</p>'+
+    '<div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:14px;">'+(chips||'<span class="muted small">Sin indicadores en este pilar.</span>')+'</div>'+
+    '<div>'+( lista.map(i=>renderObjetivoRow(i, mk)).join('') || '<p class="small muted">Sin objetivos en esta categoría.</p>' )+'</div>';
+}
+function renderPanelPilarMes(pid, mk){
+  const p = getPilar(pid);
+  if(!p) return '';
+  const ventaja = p.ventajaPrimaria!=null ? getVentaja(p.ventajaPrimaria) : null;
+  const secundarias = (p.secundarias||[]).map(id=>getVentaja(id)).filter(Boolean);
+  return `
+  <div class="pilar-panel" style="--panel-color:${pilarColorVar(pid)};margin-top:14px;">
+    <div class="panel-head">
+      <span class="dot"></span>
+      <div>
+        <div style="font-weight:700;font-size:16px;">${p.id} · ${esc(p.nombre)}</div>
+      </div>
+    </div>
+
+    <div class="ventaja-feature" style="--panel-color:${pilarColorVar(pid)};">
+      <div class="ventaja-feature-icon">${ventajaIcon(18)}</div>
+      <div style="flex:1;">
+        <div class="small muted" style="text-transform:uppercase;letter-spacing:.05em;font-weight:700;">Ventaja competitiva</div>
+        <div style="font-weight:700;font-size:15px;">${ventaja?esc(ventaja.nombre):'Sin ventaja principal asignada'}</div>
+        ${secundarias.length? `<div class="small muted" style="margin-top:2px;">también aporta a: ${secundarias.map(v=>esc(v.nombre)).join(', ')}</div>`:''}
+      </div>
+    </div>
+
+    ${renderSemaforoVisual(pid, mk)}
+
+    <div class="row-between" style="margin:20px 0 8px;">
+      <div class="section-title" style="margin:0;">Indicadores de ${p.id}</div>
+      <button class="btn btn-ghost btn-sm" data-nuevo-ind-pilar="${pid}">+ indicador</button>
+    </div>
+    ${(ui.indNewOpen && ui.indNewOpenPilar===pid) ? renderFormNuevoIndicador(pid) : ''}
+    ${renderTablaIndicadores({pilar:pid, mk})}
+
+    <div class="section-title" style="margin:20px 0 8px;">Mejoras 1% relacionadas con ${p.id}</div>
+    ${(()=>{
+      const relacionadas = state.mejoras.filter(m=>m.pilar===pid).sort((a,b)=>b.fechaInicio.localeCompare(a.fechaInicio));
+      if(!relacionadas.length) return `<p class="small muted">Aún no hay ideas del 1% ligadas a este pilar. Puedes ligarlas desde la tabla en "El 1% · Mejoras" más abajo.</p>`;
+      return `<div class="tbl-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Propuesta</th><th>Líder/equipo</th></tr></thead>
+        <tbody>${relacionadas.map(m=>`<tr><td class="small">${m.fechaInicio}</td><td>${esc(m.propuesta)}</td><td class="small muted">${esc(m.lider)}${m.equipo?' · '+esc(m.equipo):''}</td></tr>`).join('')}</tbody>
+      </table></div>`;
+    })()}
+  </div>`;
+}
+
+function renderMejorasFiltros(mk){
+  const filtroP=`<select id="filtroMejoraProceso"><option value="all">Todos los procesos</option>`+
+    PROCESOS_MEJORA.map(p=>{
+      const sel=ui.mejorasFiltroProceso===p?' selected':'';
+      return `<option value="${esc(p)}"${sel}>${esc(p)}</option>`;
+    }).join('')+'</select>';
+  const filtroL=`<select id="filtroMejoraPilar"><option value="all">Todos los pilares</option>`+
+    `<option value="general"${ui.mejorasFiltroPilar==='general'?' selected':''}>General (sin pilar)</option>`+
+    state.pilares.map(p=>{
+      const sel=ui.mejorasFiltroPilar===p.id?' selected':'';
+      return `<option value="${p.id}"${sel}>${p.id} · ${esc(p.nombre)}</option>`;
+    }).join('')+'</select>';
+  return '<div class="filterbar" style="margin-top:10px;">'+filtroP+filtroL+'</div>';
+}
+
+function renderTablaMejorasMes(mk){
+  let list=state.mejoras.filter(m=>monthKey(parseISO(m.fechaInicio))===mk)
+    .sort((a,b)=>b.fechaInicio.localeCompare(a.fechaInicio)||b.numero-a.numero);
+  if(ui.mejorasFiltroProceso!=='all') list=list.filter(m=>m.proceso===ui.mejorasFiltroProceso);
+  if(ui.mejorasFiltroPilar!=='all') list=list.filter(m=>ui.mejorasFiltroPilar==='general'?!m.pilar:m.pilar===ui.mejorasFiltroPilar);
+  if(!list.length) return '<div class="empty">Sin mejoras en '+monthLabel(mk)+' con estos filtros.</div>';
+  return '<div class="tbl-wrap"><table><thead><tr><th>Fecha</th><th>Proceso</th><th>Propuesta</th><th>Líder</th><th>Pilar</th><th></th></tr></thead><tbody>'+
+    list.map(m=>`<tr>
+      <td class="small">${m.fechaInicio}</td>
+      <td class="small">${esc(m.proceso)}</td>
+      <td style="max-width:230px;">${esc(m.propuesta)}</td>
+      <td class="small muted">${esc(m.lider)}${m.equipo?' · '+esc(m.equipo):''}</td>
+      <td><select data-mejora-pilar="${m.id}" style="font-size:11px;padding:4px 6px;">${mejoraPilarOptions(m.pilar||'')}</select></td>
+      <td>${deleteBtnHtml('mejora',m.id,'Eliminar')}</td>
+    </tr>`).join('')+'</tbody></table></div>';
+}
+
+function renderMes(){
+  const mk = ui.mes;
+  const avance = avancePorPilar(mk);
+  const c = contadorSinDefinir();
+  const borradorCount = state.indicadores.filter(i=>i.estado==='borrador').length;
+
+  const delMesMejoras = mejorasDelMes(mk);
+  const tareas = getTareas(mk);
+  const completadas = tareas.filter(t=>t.completada).length;
+
+  return `
+  <div class="row-between no-print" style="margin-bottom:16px;">
+    <div>
+      <div class="section-title" style="margin-bottom:2px;">Mes</div>
+      <h2 style="margin:0;text-transform:capitalize;">${monthLabel(mk)}</h2>
+      <p class="muted small" style="margin:4px 0 0;">Reporte por pilar — KPIs, acciones del mes y ventaja competitiva ligada.</p>
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost btn-sm" id="btnMesPrev">‹ anterior</button>
+      <button class="btn btn-ghost btn-sm" id="btnMesNext">siguiente ›</button>
+      <button class="btn btn-gold btn-sm" id="btnImprimir">Imprimir / PDF</button>
+    </div>
+  </div>
+
+  <div class="grid grid-3" style="margin-bottom:16px;">
+    <div class="card" style="text-align:center;">
+      <div class="pilar-pct" style="color:var(--lila);">${c.sinDef + borradorCount}</div>
+      <div class="small muted">Indicadores sin definir / borrador</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="pilar-pct" style="color:var(--dark-blue);">${completadas}</div>
+      <div class="small muted">Acciones completadas este mes</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="pilar-pct" style="color:var(--verde);">${delMesMejoras.length}</div>
+      <div class="small muted">Ideas 1% registradas este mes</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:14px 16px;">
+    <div class="row-between" style="cursor:pointer;user-select:none;" data-mes-sec-toggle="pilares">
+      <div class="section-title" style="margin:0;">Pilares</div>
+      <span style="font-size:18px;color:var(--text-3);">${ui.mesSeccionesColapsadas['pilares']?'▸':'▾'}</span>
+    </div>
+    ${!ui.mesSeccionesColapsadas['pilares']?`<div class="pilar-mes-grid" style="margin-top:12px;">${state.pilares.map(p=>renderPilarCardMes(p,mk,avance[p.id])).join('')}</div>`:''}
+  </div>
+
+  ${ui.pilarMesExpandido?renderPanelPilarMes(ui.pilarMesExpandido,mk):''}
+
+  `;
+}
+
+async function guardarNarrativa(){
+  const mk = ui.mes; await loadMonth(mk);
+  state.cierre[mk].narrativa = document.getElementById('narrativaText').value;
+  await saveMonth(mk,'cierre');
+  renderViewport();
+}
+
+function bindMesEvents(){
+  bindDeleteConfirmEvents();
+  document.querySelectorAll('[data-mes-sec-toggle]').forEach(el=>{
+    el.addEventListener('click',()=>{ const s=el.dataset.mesSecToggle; ui.mesSeccionesColapsadas[s]=!ui.mesSeccionesColapsadas[s]; renderViewport(); });
+  });
+  const btnPrev = document.getElementById('btnMesPrev');
+  const btnNext = document.getElementById('btnMesNext');
+  const btnPrint = document.getElementById('btnImprimir');
+  if(btnPrev) btnPrev.addEventListener('click', async ()=>{ ui.mes = addMonths(ui.mes,-1); await loadMonth(ui.mes); renderViewport(); });
+  if(btnNext) btnNext.addEventListener('click', async ()=>{ ui.mes = addMonths(ui.mes,1); await loadMonth(ui.mes); renderViewport(); });
+  if(btnPrint) btnPrint.addEventListener('click', ()=>window.print());
+
+  document.querySelectorAll('[data-pilar-mes-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const pid = el.dataset.pilarMesToggle;
+      ui.pilarMesExpandido = (ui.pilarMesExpandido===pid)? null : pid;
+      ui.semaforoFiltro = null;
+      ui.objetivoExpandido = null;
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-semaforo-filtro]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const k = el.dataset.semaforoFiltro;
+      ui.semaforoFiltro = (ui.semaforoFiltro===k)? null : k;
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-objetivo-toggle]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = Number(el.dataset.objetivoToggle);
+      ui.objetivoExpandido = (ui.objetivoExpandido===id)? null : id;
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-nuevo-ind-pilar]').forEach(el=>{
+    el.addEventListener('click', ()=>{ ui.indNewOpen=!ui.indNewOpen; ui.indNewOpenPilar=el.dataset.nuevoIndPilar; ui.indFormError=''; renderViewport(); });
+  });
+  bindIndicadoresTablaEvents();
+
+  const btnNueva = document.getElementById('btnNuevaMejora');
+  if(btnNueva) btnNueva.addEventListener('click', ()=>{ ui.mejorasNewOpen=!ui.mejorasNewOpen; ui.mejorasFormError=''; renderViewport(); });
+  const btnGuardarM = document.getElementById('btnGuardarMejora');
+  if(btnGuardarM) btnGuardarM.addEventListener('click', guardarNuevaMejora);
+  const btnCancelarM = document.getElementById('btnCancelarMejora');
+  if(btnCancelarM) btnCancelarM.addEventListener('click', ()=>{ ui.mejorasNewOpen=false; ui.mejorasFormError=''; renderViewport(); });
+  const fp = document.getElementById('filtroMejoraProceso');
+  if(fp) fp.addEventListener('change', ()=>{ ui.mejorasFiltroProceso=fp.value; renderViewport(); });
+  const fplr = document.getElementById('filtroMejoraPilar');
+  if(fplr) fplr.addEventListener('change', ()=>{ ui.mejorasFiltroPilar=fplr.value; renderViewport(); });
+  document.querySelectorAll('[data-mejora-pilar]').forEach(el=>{
+    el.addEventListener('change', ()=>actualizarMejoraPilar(el.dataset.mejoraPilar, el.value));
+  });
+
+  bindMapaEvents();
+}
+
+/* =========================================================
+   INDICADORES — tabla reutilizable
+   ========================================================= */
+function renderTablaIndicadores(opts){
+  opts = opts||{};
+  const mk = opts.mk || ui.mes;
+  let list = state.indicadores;
+  if(opts.pilar) list = list.filter(i=>i.pilar===opts.pilar);
+  if(!opts.compact && !opts.pilar){
+    if(ui.indFiltroPilar!=='all') list = list.filter(i=>i.pilar===ui.indFiltroPilar);
+    if(ui.indFiltroEstado!=='all') list = list.filter(i=>{
+      if(ui.indFiltroEstado==='rojo'||ui.indFiltroEstado==='verde'||ui.indFiltroEstado==='ambar') return semaforo(i,mk)===ui.indFiltroEstado;
+      return i.estado===ui.indFiltroEstado;
+    });
+  }
+  if(opts.pilar){
+    return `<div class="tbl-wrap"><table>
+      <thead><tr><th>Objetivo táctico</th><th>KPI</th><th>Meta</th><th>Real (${monthLabel(mk).split(' ')[0]})</th><th>%</th><th>vs. mes ant.</th><th>Estado</th></tr></thead>
+      <tbody>${list.map(i=>renderIndicadorFilas(i,{...opts,mk})).join('') || '<tr><td colspan="7" class="empty">Sin indicadores en este pilar.</td></tr>'}</tbody>
+    </table></div>`;
+  }
+  const byPilar = {};
+  list.forEach(i=>{ (byPilar[i.pilar]=byPilar[i.pilar]||[]).push(i); });
+  const pilarIds = state.pilares.map(p=>p.id).filter(pid=>byPilar[pid]);
+  return pilarIds.map(pid=>{
+    const p = getPilar(pid);
+    const items = byPilar[pid];
+    return `
+    <div style="margin-top:${opts.compact?'10px':'18px'};">
+      <div class="small" style="font-weight:700;color:var(--dark-blue);margin-bottom:6px;">${esc(p.id)} · ${esc(p.nombre)}</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Objetivo táctico</th><th>KPI</th><th>Meta</th><th>Real</th><th>%</th><th>Estado</th></tr></thead>
+          <tbody>
+            ${items.map(i=>renderIndicadorFilas(i, {...opts,mk})).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">No hay indicadores con estos filtros.</div>';
+}
+
+function renderIndicadorFilas(i, opts){
+  const mk = opts.mk || ui.mes;
+  const s = semaforo(i, mk);
+  const pct = pctCumplimiento(i, mk);
+  const prevMk = addMonths(mk, -1);
+  const pctPrev = pctCumplimiento(i, prevMk);
+  const puedeEditar = !opts.compact;
+  const puedeDefinir = puedeEditar && (i.estado==='sin_definir' || i.estado==='revisar');
+  const puedeConfirmar = puedeEditar && i.estado==='borrador';
+  const editando = puedeEditar && ui.indEditingId===i.id;
+  const realActual = getRealMes(i, mk);
+
+  let delta = '<span class="muted">—</span>';
+  if(pct!=null && pctPrev!=null){
+    const d = Math.round(pct-pctPrev);
+    const arrow = d>0?'▲':(d<0?'▼':'●');
+    const color = d>0?'var(--verde)':(d<0?'var(--rojo)':'var(--text-3)');
+    delta = `<span style="color:${color};font-weight:700;">${arrow} ${Math.abs(d)} pts</span>`;
+  } else if(pct!=null && pctPrev==null){
+    delta = '<span class="small muted">sin dato previo</span>';
+  }
+
+  if(editando){
+    return `<tr>
+      <td colspan="7">
+        <div class="card" style="background:var(--card-bg-2);margin:6px 0;padding:14px;">
+          <div class="small muted" style="margin-bottom:8px;">${esc(i.objetivo)}${i.estado==='revisar'?' — el KPI actual no corresponde a este objetivo.':''}</div>
+          <div class="grid grid-3">
+            <div class="field"><label>KPI</label><input type="text" id="editKpi" value="${esc(i.kpi||'')}" placeholder="¿Qué se va a medir?"></div>
+            <div class="field"><label>Meta</label><input type="number" id="editMeta" value="${i.meta??''}" step="any"></div>
+            <div class="field"><label>Real (${monthLabel(mk).split(' ')[0]})</label><input type="number" id="editReal" value="${realActual??''}" step="any"></div>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary btn-sm" data-save-indicador="${i.id}" data-save-mk="${mk}">Guardar</button>
+            <button class="btn btn-ghost btn-sm" data-cancel-indicador="${i.id}">Cancelar</button>
+          </div>
+        </div>
+      </td>
+    </tr>`;
+  }
+
+  const eo = estadoObjetivo(i, mk);
+  const eoBadge = ESTADO_OBJETIVO_BADGE[eo];
+  const barColorVar = eoBadge==='rojo'?'var(--rojo)':eoBadge==='ambar'?'var(--ambar)':eoBadge==='verde'?'var(--verde)':eoBadge==='naranja'?'var(--orange)':'var(--gris)';
+  const barW = pct==null?0:clamp(pct,0,100);
+
+  return `<tr>
+    <td style="max-width:220px;">${esc(i.objetivo)}</td>
+    <td class="small ${i.estado==='revisar'?'muted':''}">${i.kpi?esc(i.kpi):'<span class="muted">—</span>'}</td>
+    <td>${(i.estado==='definido'||i.estado==='borrador')?`<input type="number" data-ind-meta="${i.id}" value="${i.meta}" step="any">`:'<span class="muted">—</span>'}</td>
+    <td>${(i.estado==='definido'||i.estado==='borrador')?`<input type="number" data-ind-real-mes="${i.id}" data-real-mk="${mk}" value="${realActual??''}" step="any" placeholder="—">`:'<span class="muted">—</span>'}</td>
+    <td>
+      <div class="row" style="gap:6px;min-width:110px;">
+        <div class="barwrap" style="height:8px;flex:1;"><div class="barfill" style="width:${barW}%;background:${barColorVar};"></div></div>
+        <span class="small" style="min-width:32px;text-align:right;">${pct!=null?Math.round(pct)+'%':'—'}</span>
+      </div>
+    </td>
+    <td class="small">${delta}</td>
+    <td>
+      <span class="badge badge-${eoBadge}">${ESTADO_OBJETIVO_LABEL[eo]}</span>
+      ${puedeDefinir? `<button class="btn btn-ghost btn-sm" data-edit-indicador="${i.id}" style="margin-left:6px;">${i.estado==='revisar'?'Corregir':'Definir'}</button>`:''}
+      ${puedeConfirmar? `<button class="btn btn-ghost btn-sm" data-confirmar-indicador="${i.id}" style="margin-left:6px;">Confirmar KPI</button>`:''}
+      ${puedeEditar && i.nuevo? deleteBtnHtml('ind', i.id, 'Eliminar indicador'):''}
+    </td>
+  </tr>
+  ${i.nota? `<tr><td colspan="7" class="small" style="color:var(--azul);padding-top:0;border-top:none;">${esc(i.nota)}</td></tr>`:''}
+  `;
+}
+
+async function guardarEdicionIndicador(id, mk){
+  const ind = state.indicadores.find(i=>i.id===Number(id));
+  if(!ind) return;
+  const kpi = document.getElementById('editKpi').value.trim();
+  const metaVal = document.getElementById('editMeta').value;
+  const realVal = document.getElementById('editReal').value;
+  ind.kpi = kpi || null;
+  ind.meta = metaVal===''? null : Number(metaVal);
+  if(ind.kpi && ind.meta!=null){
+    ind.estado = 'definido';
+    ind.nota = null;
+    ind.estandar = 'Meta institucional: '+ind.meta;
+  } else {
+    ind.estado = 'sin_definir';
+    ind.nota = 'Objetivo táctico definido; medición pendiente.';
+  }
+  if(realVal!==''){
+    await loadMonth(mk);
+    if(!state.indicadorHist[mk]) state.indicadorHist[mk] = {};
+    state.indicadorHist[mk][ind.id] = Number(realVal);
+    await saveMonth(mk,'indhist');
+  }
+  ui.indEditingId = null;
+  await saveIndicadores();
+  renderViewport();
+}
+async function confirmarIndicador(id){
+  const ind = state.indicadores.find(i=>i.id===Number(id));
+  if(!ind) return;
+  ind.estado = 'definido';
+  ind.nota = null;
+  await saveIndicadores();
+  renderViewport();
+}
+async function eliminarIndicador(id){
+  state.indicadores = state.indicadores.filter(i=>i.id!==Number(id));
+  await saveIndicadores();
+  renderViewport();
+}
+
+async function actualizarIndicador(id, field, value){
+  const ind = state.indicadores.find(i=>i.id===Number(id));
+  if(!ind) return;
+  ind[field] = value===''? null : Number(value);
+  await saveIndicadores();
+  renderViewport();
+}
+
+/* Crear indicadores nuevos (los que faltan del catálogo) */
+function renderFormNuevoIndicador(pilarFijo){
+  return `
+  <div class="card" style="background:var(--card-bg-2);margin-bottom:14px;">
+    <div class="section-title" style="margin-bottom:10px;">Nuevo indicador</div>
+    <div class="grid grid-3">
+      <div class="field">
+        <label>Pilar</label>
+        ${pilarFijo? `<input type="text" value="${pilarFijo}" disabled><input type="hidden" id="niPilar" value="${pilarFijo}">` : `<select id="niPilar">${pilarOptions('')}</select>`}
+      </div>
+      <div class="field" style="grid-column:span 2;">
+        <label>Objetivo táctico</label>
+        <input type="text" id="niObjetivo" placeholder="¿Qué se busca lograr?">
+      </div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field">
+        <label>KPI (opcional si aún no se define)</label>
+        <input type="text" id="niKpi" placeholder="¿Qué se va a medir?">
+      </div>
+      <div class="field"><label>Meta</label><input type="number" id="niMeta" step="any" placeholder="—"></div>
+    </div>
+    ${ui.indFormError? `<p class="small" style="color:var(--rojo);">${esc(ui.indFormError)}</p>`:''}
+    <div class="row">
+      <button class="btn btn-primary btn-sm" id="btnGuardarNuevoIndicador">Guardar indicador</button>
+      <button class="btn btn-ghost btn-sm" id="btnCancelarNuevoIndicador">Cancelar</button>
+    </div>
+  </div>`;
+}
+async function guardarNuevoIndicador(){
+  const pilar = document.getElementById('niPilar').value;
+  const objetivo = document.getElementById('niObjetivo').value.trim();
+  const kpi = document.getElementById('niKpi').value.trim();
+  const metaVal = document.getElementById('niMeta').value;
+  if(!pilar || !objetivo){ ui.indFormError='Necesitas al menos el pilar y el objetivo táctico.'; renderViewport(); return; }
+  ui.indFormError='';
+  const nextId = state.indicadores.reduce((m,i)=>Math.max(m,i.id),0)+1;
+  const definido = kpi && metaVal!=='';
+  state.indicadores.push({
+    id: nextId, pilar, objetivo, kpi: kpi||null,
+    meta: definido? Number(metaVal):null,
+    estandar: definido? 'Meta institucional: '+metaVal : null,
+    estado: definido? 'definido':'sin_definir',
+    nota: definido? null : 'Objetivo táctico definido; medición pendiente.',
+    nuevo: true
+  });
+  ui.indNewOpen = false;
+  ui.indNewOpenPilar = null;
+  await saveIndicadores();
+  renderViewport();
+}
+
+function bindIndicadoresTablaEvents(){
+  document.querySelectorAll('[data-ind-meta]').forEach(el=>{
+    el.addEventListener('change', ()=>actualizarIndicador(el.dataset.indMeta,'meta',el.value));
+  });
+  document.querySelectorAll('[data-ind-real-mes]').forEach(el=>{
+    el.addEventListener('change', ()=>actualizarRealMes(el.dataset.indRealMes, el.dataset.realMk, el.value));
+  });
+  document.querySelectorAll('[data-edit-indicador]').forEach(el=>{
+    el.addEventListener('click', ()=>{ ui.indEditingId = Number(el.dataset.editIndicador); renderViewport(); });
+  });
+  document.querySelectorAll('[data-cancel-indicador]').forEach(el=>{
+    el.addEventListener('click', ()=>{ ui.indEditingId = null; renderViewport(); });
+  });
+  document.querySelectorAll('[data-save-indicador]').forEach(el=>{
+    el.addEventListener('click', ()=>guardarEdicionIndicador(el.dataset.saveIndicador, el.dataset.saveMk));
+  });
+  document.querySelectorAll('[data-confirmar-indicador]').forEach(el=>{
+    el.addEventListener('click', ()=>confirmarIndicador(el.dataset.confirmarIndicador));
+  });
+  const btnNuevo = document.getElementById('btnNuevoIndicador');
+  if(btnNuevo) btnNuevo.addEventListener('click', ()=>{ ui.indNewOpen = !ui.indNewOpen; ui.indFormError=''; renderViewport(); });
+  const btnGuardarNuevo = document.getElementById('btnGuardarNuevoIndicador');
+  if(btnGuardarNuevo) btnGuardarNuevo.addEventListener('click', guardarNuevoIndicador);
+  const btnCancelarNuevo = document.getElementById('btnCancelarNuevoIndicador');
+  if(btnCancelarNuevo) btnCancelarNuevo.addEventListener('click', ()=>{ ui.indNewOpen=false; ui.indNewOpenPilar=null; ui.indFormError=''; renderViewport(); });
+}
+
+/* =========================================================
+   MEJORAS 1% — cómputo
+   ========================================================= */
+function mejorasDelMes(mk){
+  return state.mejoras.filter(m=>monthKey(parseISO(m.fechaInicio))===mk);
+}
+function resumenMejorasPorProceso(list){
+  const out = {};
+  PROCESOS_MEJORA.forEach(p=>{ out[p]=0; });
+  list.forEach(m=>{ out[m.proceso]=(out[m.proceso]||0)+1; });
+  return out;
+}
+function siguienteNumeroMejora(){
+  return state.mejoras.reduce((max,m)=>Math.max(max,m.numero||0),0)+1;
+}
+/* =========================================================
+   VISTA MEJORAS 1%
+   ========================================================= */
+function renderFormNuevaMejora(){
+  const hoy = isoDate(new Date());
+  return `
+  <div class="card" style="background:var(--card-bg-2);">
+    <div class="section-title" style="margin-bottom:10px;">Nueva idea</div>
+    <div class="grid grid-3">
+      <div class="field" style="grid-column:span 2;">
+        <label>Propuesta de mejora</label>
+        <input type="text" id="mjPropuesta" placeholder="¿Qué se hizo o se va a hacer?">
+      </div>
+      <div class="field">
+        <label>Proceso</label>
+        <select id="mjProceso">${PROCESOS_MEJORA.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="field" style="max-width:320px;">
+      <label>Pilar del Eje 3 (si aplica)</label>
+      <select id="mjPilar">${mejoraPilarOptions('')}</select>
+    </div>
+    <div class="grid grid-3">
+      <div class="field">
+        <label>Semana</label>
+        <input type="number" id="mjSemana" min="1" value="${(state.mejoras.reduce((max,m)=>Math.max(max,m.semana||0),0))||1}">
+      </div>
+      <div class="field">
+        <label>Fecha de inicio</label>
+        <input type="date" id="mjFecha" value="${hoy}">
+      </div>
+      <div class="field">
+        <label>Días estimados</label>
+        <input type="number" id="mjDias" min="0" value="7">
+      </div>
+    </div>
+    <div class="grid grid-2">
+      <div class="field">
+        <label>Líder</label>
+        <input type="text" id="mjLider" value="Ceci">
+      </div>
+      <div class="field">
+        <label>Equipo (opcional)</label>
+        <input type="text" id="mjEquipo" placeholder="Nombres, separados por coma">
+      </div>
+    </div>
+    ${ui.mejorasFormError? `<p class="small" style="color:var(--rojo);">${esc(ui.mejorasFormError)}</p>`:''}
+    <div class="row">
+      <button class="btn btn-primary btn-sm" id="btnGuardarMejora">Guardar idea</button>
+      <button class="btn btn-ghost btn-sm" id="btnCancelarMejora">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+function mejoraPilarOptions(selected){
+  const opts = state.pilares.map(p=>`<option value="${p.id}" ${selected===p.id?'selected':''}>${p.id} · ${esc(p.nombre)}</option>`).join('');
+  return `<option value="" ${!selected?'selected':''}>General (no aplica a un pilar específico)</option>${opts}`;
+}
+
+async function guardarNuevaMejora(){
+  const propuesta = document.getElementById('mjPropuesta').value.trim();
+  const proceso = document.getElementById('mjProceso').value;
+  const pilar = document.getElementById('mjPilar').value || null;
+  const semana = Number(document.getElementById('mjSemana').value)||1;
+  const fechaInicio = document.getElementById('mjFecha').value;
+  const dias = Number(document.getElementById('mjDias').value)||0;
+  const lider = document.getElementById('mjLider').value.trim() || 'Ceci';
+  const equipo = document.getElementById('mjEquipo').value.trim() || null;
+  if(!propuesta){ ui.mejorasFormError='Escribe en qué consiste la mejora.'; renderViewport(); return; }
+  if(!fechaInicio){ ui.mejorasFormError='Elige una fecha de inicio.'; renderViewport(); return; }
+  ui.mejorasFormError='';
+  const numero = siguienteNumeroMejora();
+  state.mejoras.push({
+    id: uid('mj'), numero, semana,
+    fechaInicio, dias, lider, equipo, area:'UGEB', proceso, pilar, propuesta, nuevo:true
+  });
+  await saveMejoras();
+  ui.mejorasNewOpen = false;
+  renderViewport();
+}
+async function eliminarMejora(id){
+  state.mejoras = state.mejoras.filter(m=>m.id!==id);
+  await saveMejoras();
+  renderViewport();
+}
+async function actualizarMejoraPilar(id, pilar){
+  const m = state.mejoras.find(x=>x.id===id);
+  if(!m) return;
+  m.pilar = pilar || null;
+  await saveMejoras();
+  renderViewport();
+}
+
+/* =========================================================
+   VISTA PRESENTACIÓN
+   ========================================================= */
+/* =========================================================
+   VISTA MAPA — elemento firma
+   ========================================================= */
+function polarPoint(cx,cy,r,angleDeg){
+  const a = (angleDeg-90)*Math.PI/180;
+  return {x: cx+r*Math.cos(a), y: cy+r*Math.sin(a)};
+}
+function svgWrapLines(label, maxChars){
+  const words = String(label).split(' ');
+  const lines = []; let cur='';
+  words.forEach(w=>{
+    if((cur+' '+w).trim().length>maxChars && cur){ lines.push(cur.trim()); cur=w; }
+    else cur = (cur+' '+w).trim();
+  });
+  if(cur) lines.push(cur);
+  return lines.slice(0,3);
+}
+function svgNodeText(label, x, y){
+  const lines = svgWrapLines(label,13);
+  const startDy = -((lines.length-1)*11)/2;
+  return `<text x="${x}" y="${y+startDy}">${lines.map((l,i)=>`<tspan x="${x}" dy="${i===0?0:11}">${esc(l)}</tspan>`).join('')}</text>`;
+}
+function pilaresRelacionados(ventajaId){
+  return state.pilares.filter(p=> p.ventajaPrimaria===ventajaId || (p.secundarias||[]).includes(ventajaId));
+}
+function ventajasRelacionadas(pilarId){
+  const p = getPilar(pilarId); if(!p) return [];
+  return [p.ventajaPrimaria, ...(p.secundarias||[])].filter(v=>v!=null);
+}
+
+function buildCircleSVG({centerLabel, centerSub, nodes, nodeClass, size}){
+  size = size||480;
+  const cx=size/2, cy=size/2, rCenter=64, rOrbit=size/2-64, rNode=44;
+  let svg = `<svg viewBox="0 0 ${size} ${size}" class="mapa-svg" xmlns="http://www.w3.org/2000/svg">`;
+  nodes.forEach((n,i)=>{
+    const angle = (360/nodes.length)*i;
+    const p = polarPoint(cx,cy,rOrbit,angle);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" class="mapa-line ${n.highlighted?'active':''}" stroke-dasharray="4 5"/>`;
+  });
+  svg += `<g class="mapa-center"><circle cx="${cx}" cy="${cy}" r="${rCenter}"/>`;
+  svg += `<text x="${cx}" y="${cy-4}">${esc(centerLabel)}</text>`;
+  if(centerSub) svg += `<text x="${cx}" y="${cy+14}" class="sub">${esc(centerSub)}</text>`;
+  svg += `</g>`;
+  nodes.forEach((n,i)=>{
+    const angle = (360/nodes.length)*i;
+    const p = polarPoint(cx,cy,rOrbit,angle);
+    const styleAttr = n.color ? ` style="--node-color:${n.color};"` : '';
+    svg += `<g class="mapa-node ${nodeClass} ${n.highlighted?'active':''} ${n.special?'p8':''}" data-node-id="${esc(String(n.id))}" tabindex="0" role="button" aria-pressed="${!!n.highlighted}"${styleAttr}>`;
+    svg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${rNode}"/>`;
+    svg += svgNodeText(n.label, p.x, p.y);
+    svg += `</g>`;
+  });
+  svg += `</svg>`;
+  return svg;
+}
+
+function renderMapaContent(){
+  const selV = ui.mapaSel.ventaja, selP = ui.mapaSel.pilar;
+  const highlightedPilares = selV!=null ? pilaresRelacionados(selV).map(p=>p.id) : (selP? [selP]:[]);
+
+  const nodesPilares = state.pilares.map(p=>({id:p.id, label:p.nombre.split(' – ')[0], highlighted:highlightedPilares.includes(p.id), special:p.id==='P8', color:pilarColorVar(p.id)}));
+  const svgPilares = buildCircleSVG({centerLabel:'Eje 3', centerSub:'Movilidad Social', nodes:nodesPilares, nodeClass:'pilar'});
+
+  let sidePanel = '<p class="muted small">Haz clic en un pilar para ver con qué ventaja competitiva se conecta.</p>';
+  if(selP){
+    const p = getPilar(selP);
+    const vs = ventajasRelacionadas(selP).map(id=>getVentaja(id)).filter(Boolean);
+    const inds = state.indicadores.filter(i=>i.pilar===selP);
+    sidePanel = `
+      <div class="small muted">Pilar seleccionado</div>
+      <div style="font-weight:700;font-size:16px;margin-bottom:8px;">${p.id} · ${esc(p.nombre)}</div>
+      <div class="row" style="flex-wrap:wrap;gap:8px;">
+        ${vs.map(v=>`<span class="chip">${esc(v.nombre)}</span>`).join('')}
+      </div>
+      ${p.subetiquetas? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:10px;">${p.subetiquetas.map(s=>`<span class="tag tag-nueva">${esc(s)}</span>`).join('')}</div>`:''}
+      <p class="small muted" style="margin-top:10px;">${inds.length} indicadores · ${actividadesDe(selP).length} actividades observables.</p>`;
+  }
+
+  return `
+  <div class="card">
+    ${svgPilares}
+  </div>
+  <div class="card mapa-side">${sidePanel}</div>
+
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <linearGradient id="gradViolet" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#5B4FD6"/><stop offset="100%" stop-color="#3B2E8F"/>
+      </linearGradient>
+      <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#E3C468"/><stop offset="100%" stop-color="#B8912F"/>
+      </linearGradient>
+      <linearGradient id="gradTeal" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#57C9A0"/><stop offset="100%" stop-color="#2FA37A"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  `;
+}
+
+function bindMapaEvents(){
+  document.querySelectorAll('.mapa-node').forEach(el=>{
+    const activate = ()=>{
+      const id = el.dataset.nodeId;
+      const isPilar = el.classList.contains('pilar');
+      if(isPilar){
+        ui.mapaSel.pilar = (ui.mapaSel.pilar===id)? null : id;
+        ui.mapaSel.ventaja = null;
+      } else {
+        const numId = Number(id);
+        ui.mapaSel.ventaja = (ui.mapaSel.ventaja===numId)? null : numId;
+        ui.mapaSel.pilar = null;
+      }
+      renderViewport();
+    };
+    el.addEventListener('click', activate);
+    el.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activate(); }});
+  });
+}
+
+/* =========================================================
+   EXPORTAR / IMPORTAR — red de seguridad
+   ========================================================= */
+async function exportarJSON(){
+  const meses = state.config.meses.length? state.config.meses : [ui.mes];
+  const bitacora = {}, unopct = {}, cierre = {}, indhist = {};
+  for(const mk of meses){
+    try{ bitacora[mk] = await storeGet('bitacora:'+mk); }catch(e){ bitacora[mk] = state.bitacora[mk] || {tareas:[]}; }
+    try{ unopct[mk] = await storeGet('unopct:'+mk); }catch(e){ unopct[mk] = state.unopct[mk] || {archivos:[]}; }
+    try{ cierre[mk] = await storeGet('cierre:'+mk); }catch(e){ cierre[mk] = state.cierre[mk] || {narrativa:''}; }
+    try{ indhist[mk] = await storeGet('indhist:'+mk); }catch(e){ indhist[mk] = state.indicadorHist[mk] || {}; }
+  }
+  const payload = {
+    exportado: new Date().toISOString(),
+    ventajas: state.ventajas, pilares: state.pilares,
+    actividades: state.actividades, indicadores: state.indicadores, mejoras: state.mejoras,
+    config: state.config, bitacora, unopct, cierre, indicadorHist: indhist
+  };
+  downloadFile('tablero-movilidad-social-'+isoDate(new Date())+'.json', JSON.stringify(payload,null,2));
+}
+
+async function importarJSON(file){
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(data.ventajas) state.ventajas = data.ventajas;
+    if(data.pilares) state.pilares = data.pilares;
+    if(data.actividades) state.actividades = data.actividades;
+    if(data.indicadores) state.indicadores = data.indicadores;
+    if(data.mejoras) state.mejoras = data.mejoras;
+    if(data.config) state.config = data.config;
+    if(data.bitacora) state.bitacora = data.bitacora;
+    if(data.unopct) state.unopct = data.unopct;
+    if(data.cierre) state.cierre = data.cierre;
+    if(data.indicadorHist) state.indicadorHist = data.indicadorHist;
+    const meses = new Set(state.config.meses||[]);
+    Object.keys(state.bitacora).forEach(mk=>meses.add(mk));
+    Object.keys(state.unopct).forEach(mk=>meses.add(mk));
+    Object.keys(state.cierre).forEach(mk=>meses.add(mk));
+    Object.keys(state.indicadorHist).forEach(mk=>meses.add(mk));
+    state.config.meses = Array.from(meses).sort();
+    // persistir todo de vuelta
+    await storeSet('catalogo:ventajas', state.ventajas);
+    await storeSet('catalogo:pilares', state.pilares);
+    await storeSet('catalogo:actividades', state.actividades);
+    await storeSet('catalogo:indicadores', state.indicadores);
+    await storeSet('mejoras', state.mejoras);
+    await storeSet('config', state.config);
+    for(const mk of state.config.meses){
+      if(state.bitacora[mk]) await storeSet('bitacora:'+mk, state.bitacora[mk]);
+      if(state.unopct[mk]) await storeSet('unopct:'+mk, state.unopct[mk]);
+      if(state.cierre[mk]) await storeSet('cierre:'+mk, state.cierre[mk]);
+      if(state.indicadorHist[mk]) await storeSet('indhist:'+mk, state.indicadorHist[mk]);
+    }
+    showToast('Importación completa. El tablero se actualizó con los datos del archivo.');
+    await render();
+  }catch(e){
+    console.error(e);
+    showToast('No se pudo leer ese archivo. Verifica que sea un JSON exportado desde este tablero.', true);
+  }
+}
+
+document.getElementById('importInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(file) importarJSON(file);
+  e.target.value = '';
+});
+
+/* =========================================================
+   ARRANQUE
+   ========================================================= */
+async function init(){
+  document.getElementById('app').innerHTML = '<div style="padding:60px;text-align:center;color:#8E9BB8;">Cargando tablero…</div>';
+  try{
+    await loadCatalogos();
+    ui.mes = monthKey(new Date()); // mes actual
+    ui.semanaBase = startOfWeek(new Date());
+    await ensureWeekLoaded(ui.semanaBase);
+    await loadMonth(ui.mes);
+  }catch(e){
+    console.error('Error al inicializar', e);
+  }
+  await render();
+}
+init();
+
+</script>
+</body>
+</html>
