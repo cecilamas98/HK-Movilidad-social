@@ -976,9 +976,9 @@ function indicadorLabel(ind){
 }
 function indicadorOptions(pilarId, selected){
   const list = pilarId ? state.indicadores.filter(i=>i.pilar===pilarId) : state.indicadores;
-  if(!list.length) return `<option value="">Este pilar no tiene indicadores todavía</option>`;
   const opts = list.map(i=>`<option value="${i.id}" ${Number(selected)===i.id?'selected':''}>${esc(indicadorLabel(i))}</option>`).join('');
-  return `<option value="" ${!selected?'selected':''} disabled>Selecciona el indicador al que pega…</option>${opts}`;
+  const sinIndicador = `<option value="none" ${selected==='none'?'selected':''}>Sin indicador (tarea general)</option>`;
+  return `<option value="" ${!selected?'selected':''} disabled>Selecciona el indicador al que pega…</option>${sinIndicador}${opts}`;
 }
 function getIndicador(id){ return state.indicadores.find(i=>i.id===Number(id)); }
 function priClass(pri){
@@ -1003,7 +1003,7 @@ function renderFormNuevaActividad(){
         <select id="afPilar">${pilarOptions('')}</select>
       </div>
       <div class="field">
-        <label>Indicador al que pega (obligatorio)</label>
+        <label>Indicador al que pega</label>
         <select id="afIndicador">${indicadorOptions('','')}</select>
       </div>
     </div>
@@ -1041,11 +1041,12 @@ async function guardarNuevaActividad(){
   const prioridad = document.getElementById('afPrioridad').value;
   const decision = document.getElementById('afDecision').value;
   if(!pilar){ ui.actFormError='Asigna un pilar primero.'; renderViewport(); return; }
-  if(!indicadorId){ ui.actFormError='Selecciona a qué indicador le pega esta actividad.'; renderViewport(); return; }
+  if(!indicadorId){ ui.actFormError='Selecciona a qué indicador le pega esta actividad, o "Sin indicador" si es una tarea general.'; renderViewport(); return; }
   if(!nombre){ ui.actFormError='Escribe el nombre de la actividad.'; renderViewport(); return; }
   ui.actFormError='';
   state.actividades.push({
-    id: uid('a'), actividad: nombre, celula: null, pilar, indicadorId: Number(indicadorId), frecuencia, horas: null,
+    id: uid('a'), actividad: nombre, celula: null, pilar,
+    indicadorId: indicadorId==='none' ? null : Number(indicadorId), frecuencia, horas: null,
     prioridad, decision, nueva: true
   });
   await storeSet('catalogo:actividades', state.actividades);
@@ -1254,6 +1255,11 @@ function renderSemana(){
       return getTareas(mk2).filter(t=>t.origenActividadId&&t.fecha===iso).map(t=>t.origenActividadId);
     })
   );
+  // Activities already scheduled anywhere in the month shown en "Programación de actividades"
+  const yaAgregadasProgMes = new Set(
+    getTareas(ui.progMes).filter(t=>t.origenActividadId).map(t=>t.origenActividadId)
+  );
+  const yaAgregadas = new Set([...yaAgregadasSemana, ...yaAgregadasProgMes]);
 
   const semStart = isoDate(weekStart);
   const semEnd   = isoDate(addDays(weekStart,6));
@@ -1314,7 +1320,7 @@ function renderSemana(){
         </button>`;
       }).join('')}
     </div>
-    ${ui.pilarExpandido? renderPanelPilar(ui.pilarExpandido, days, todayISO, yaAgregadasSemana) : ''}
+    ${ui.pilarExpandido? renderPanelPilar(ui.pilarExpandido, days, todayISO, yaAgregadas) : ''}
   </div>
 
   ${ui.pilarExpandido? renderProgramacionMes(ui.progMes) : ''}
@@ -1379,7 +1385,7 @@ function renderPanelPilar(pid, days, todayISO, yaAgregadasSemana){
       <select data-nueva-pilar-indicador="${pid}" style="max-width:220px;">${indicadorOptions(pid,'')}</select>
       <input type="text" placeholder="Escribe la actividad y presiona Enter…" data-nueva-input="${pid}" style="flex:1;min-width:140px;">
     </div>
-    ${!indsPilar.length? `<p class="small" style="color:var(--rojo);margin-top:-4px;">Este pilar no tiene indicadores todavía — créalo primero.</p>`:''}
+    ${!indsPilar.length? `<p class="small muted" style="margin-top:-4px;">Este pilar no tiene indicadores todavía — puedes crear la actividad como "Sin indicador".</p>`:''}
     <div>
       ${acts.length? acts.map(a=>{
         // Skip activities already placed in any day of this week
@@ -1400,7 +1406,8 @@ async function crearActividadRapida(pid, indicadorId, titulo){
   titulo = titulo.trim();
   if(!titulo || !indicadorId) return;
   state.actividades.push({
-    id: uid('a'), actividad: titulo, celula: null, pilar: pid, indicadorId: Number(indicadorId), frecuencia:'Mensual',
+    id: uid('a'), actividad: titulo, celula: null, pilar: pid,
+    indicadorId: indicadorId==='none' ? null : Number(indicadorId), frecuencia:'Mensual',
     horas: null, prioridad:'Estratégica', decision:'Crear', nueva: true
   });
   await storeSet('catalogo:actividades', state.actividades);
