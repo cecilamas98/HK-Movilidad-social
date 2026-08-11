@@ -706,7 +706,9 @@ let ui = {
   confirmDelete:null,
   mesSeccionesColapsadas:{},
   unopctOpen:false,
-  progMes: monthKey(new Date())
+  progMes: monthKey(new Date()),
+  tareaEditando:null,
+  tareaEditError:''
 };
 
 // ── Supabase config ──────────────────────────────────────────
@@ -991,8 +993,6 @@ function priClass(pri){
    ACTIVIDADES FIJAS — crear / eliminar del catálogo
    ========================================================= */
 const FRECUENCIAS = ['Semanal','Mensual','Trimestral','Semestral','Anual','Por caso','Por proceso'];
-const PRIORIDADES = ['Crítica','Estratégica','Evolutiva'];
-const DECISIONES = ['Crear','Mejorar','Mantener','Automatizar'];
 
 function renderFormNuevaActividad(){
   return `
@@ -1011,23 +1011,13 @@ function renderFormNuevaActividad(){
       <label>Actividad</label>
       <input type="text" id="afNombre" placeholder="¿Qué actividad se repite?">
     </div>
-    <div class="grid grid-2">
-      <div class="field">
-        <label>Frecuencia</label>
-        <select id="afFrecuencia">${FRECUENCIAS.map(f=>`<option value="${f}">${f}</option>`).join('')}</select>
-      </div>
-      <div class="field">
-        <label>Prioridad</label>
-        <select id="afPrioridad">${PRIORIDADES.map(p=>`<option value="${p}">${p}</option>`).join('')}</select>
-      </div>
-    </div>
     <div class="field" style="max-width:220px;">
-      <label>Decisión</label>
-      <select id="afDecision">${DECISIONES.map(d=>`<option value="${d}">${d}</option>`).join('')}</select>
+      <label>Frecuencia</label>
+      <select id="afFrecuencia">${FRECUENCIAS.map(f=>`<option value="${f}">${f}</option>`).join('')}</select>
     </div>
     ${ui.actFormError? `<p class="small" style="color:var(--rojo);">${esc(ui.actFormError)}</p>` : ''}
     <div class="row" style="margin-top:6px;">
-      <button class="btn btn-primary btn-sm" id="btnGuardarActividad">Guardar actividad fija</button>
+      <button class="btn btn-primary btn-sm" id="btnGuardarActividad">Guardar actividad recurrente</button>
       <button class="btn btn-ghost btn-sm" id="btnCancelarActividad">Cancelar</button>
     </div>
   </div>`;
@@ -1038,8 +1028,6 @@ async function guardarNuevaActividad(){
   const pilar = document.getElementById('afPilar').value;
   const indicadorId = document.getElementById('afIndicador').value;
   const frecuencia = document.getElementById('afFrecuencia').value;
-  const prioridad = document.getElementById('afPrioridad').value;
-  const decision = document.getElementById('afDecision').value;
   if(!pilar){ ui.actFormError='Asigna un pilar primero.'; renderViewport(); return; }
   if(!indicadorId){ ui.actFormError='Selecciona a qué indicador le pega esta actividad, o "Sin indicador" si es una tarea general.'; renderViewport(); return; }
   if(!nombre){ ui.actFormError='Escribe el nombre de la actividad.'; renderViewport(); return; }
@@ -1047,7 +1035,7 @@ async function guardarNuevaActividad(){
   state.actividades.push({
     id: uid('a'), actividad: nombre, celula: null, pilar,
     indicadorId: indicadorId==='none' ? null : Number(indicadorId), frecuencia, horas: null,
-    prioridad, decision, nueva: true
+    nueva: true
   });
   await storeSet('catalogo:actividades', state.actividades);
   ui.actNewOpen = false;
@@ -1092,6 +1080,7 @@ async function addTareaFromChip(actId, fechaISO, autoComplete){
   const tarea = {
     id: uid('t'), titulo: act.actividad, pilar: act.pilar, horas: act.horas,
     fecha: fechaISO, completada: !!autoComplete, prioridad: act.prioridad,
+    indicadorId: act.indicadorId!=null ? act.indicadorId : null,
     origenActividadId: act.id
   };
   state.bitacora[mk].tareas.push(tarea);
@@ -1212,13 +1201,7 @@ function renderProgramacionMes(mk){
       return `
       <div class="day-col day-col-compact ${iso===todayISO?'today':''}" data-day-drop="${iso}" style="grid-column:${col};">
         <div class="day-head">${d.getDate()}</div>
-        ${tareas.map(t=>`
-          <div class="mini-task" style="--mini-color:${pilarColorVar(t.pilar)};">
-            <div class="row-between" style="gap:6px;">
-              <span style="flex:1;${t.completada?'text-decoration:line-through;color:var(--text-3);':''}">${esc(t.titulo)}</span>
-              <button class="iconbtn" data-del-task="${t.id}" data-mk="${dmk}">×</button>
-            </div>
-          </div>`).join('')}
+        ${tareas.map(t=>renderMiniTask(t, dmk, {compact:true})).join('')}
         ${!tareas.length?'<div class="small muted">—</div>':''}
       </div>`;
     }).join('');
@@ -1238,6 +1221,94 @@ function renderProgramacionMes(mk){
     ${headRow}
     ${bodyRows}
   </div>`;
+}
+
+function renderMiniTask(t, mk, opts){
+  opts = opts || {};
+  if(ui.tareaEditando===t.id) return renderTareaEditForm(t, mk);
+  const ind = t.indicadorId? getIndicador(t.indicadorId) : null;
+  return `
+  <div class="mini-task" draggable="true" data-drag-week-task="${t.id}" data-drag-week-mk="${mk}" style="--mini-color:${pilarColorVar(t.pilar)};">
+    <div class="row-between" style="gap:6px;">
+      ${opts.compact? '' : `<span class="checkbox ${t.completada?'done':''}" data-toggle-task="${t.id}" data-mk="${mk}" style="width:16px;height:16px;"></span>`}
+      <span style="flex:1;cursor:pointer;${t.completada?'text-decoration:line-through;color:var(--text-3);':''}" data-edit-task="${t.id}" data-edit-task-mk="${mk}" title="Editar / reprogramar">${esc(t.titulo)}</span>
+      <button class="iconbtn" data-del-task="${t.id}" data-mk="${mk}">×</button>
+    </div>
+    ${opts.compact? '' : `<div class="small muted">${esc(getPilar(t.pilar)?.id||t.pilar)}${ind? ' · '+esc(indicadorLabel(ind)) : ''}</div>`}
+  </div>`;
+}
+
+function renderTareaEditForm(t, mk){
+  const err = ui.tareaEditError || '';
+  return `
+  <div class="mini-task-edit" style="background:var(--card-bg);border:1.5px solid var(--dark-blue);border-radius:8px;padding:8px;margin-bottom:6px;">
+    <input type="text" value="${esc(t.titulo)}" data-edit-titulo="${t.id}" placeholder="Título" style="margin-bottom:5px;font-size:11.5px;padding:5px 6px;">
+    <select data-edit-pilar="${t.id}" data-edit-mk="${mk}" style="margin-bottom:5px;font-size:11px;padding:4px 5px;">${pilarOptions(t.pilar)}</select>
+    <select data-edit-indicador="${t.id}" style="margin-bottom:5px;font-size:11px;padding:4px 5px;">${indicadorOptions(t.pilar, t.indicadorId==null?'none':t.indicadorId)}</select>
+    <input type="date" value="${t.fecha}" data-edit-fecha="${t.id}" style="margin-bottom:5px;font-size:11px;padding:4px 5px;">
+    ${err? `<p class="small" style="color:var(--rojo);margin:0 0 5px;">${esc(err)}</p>`:''}
+    <div class="row" style="gap:5px;">
+      <button class="btn btn-primary btn-sm" data-save-tarea="${t.id}" data-save-tarea-mk="${mk}" style="flex:1;padding:5px 8px;font-size:11px;">Guardar</button>
+      <button class="btn btn-ghost btn-sm" data-cancel-edit-tarea="${t.id}" style="padding:5px 8px;font-size:11px;">Cancelar</button>
+    </div>
+  </div>`;
+}
+
+async function guardarEdicionTarea(id, mk){
+  const titulo = document.querySelector(`[data-edit-titulo="${id}"]`).value.trim();
+  const pilar = document.querySelector(`[data-edit-pilar="${id}"]`).value;
+  const indicadorSel = document.querySelector(`[data-edit-indicador="${id}"]`).value;
+  const fecha = document.querySelector(`[data-edit-fecha="${id}"]`).value;
+  if(!titulo){ ui.tareaEditError='Escribe un título.'; renderViewport(); return; }
+  if(!pilar){ ui.tareaEditError='Asigna un pilar.'; renderViewport(); return; }
+  if(!fecha){ ui.tareaEditError='Elige una fecha.'; renderViewport(); return; }
+  ui.tareaEditError='';
+  await loadMonth(mk);
+  const t = getTareas(mk).find(x=>x.id===id);
+  if(!t) return;
+  t.titulo = titulo;
+  t.pilar = pilar;
+  t.indicadorId = (indicadorSel==='none'||!indicadorSel) ? null : Number(indicadorSel);
+  const nuevoMk = monthKey(parseISO(fecha));
+  if(nuevoMk!==mk){
+    state.bitacora[mk].tareas = getTareas(mk).filter(x=>x.id!==id);
+    t.fecha = fecha;
+    await loadMonth(nuevoMk);
+    state.bitacora[nuevoMk].tareas.push(t);
+    await saveMonth(mk,'bitacora');
+    await saveMonth(nuevoMk,'bitacora');
+  } else {
+    t.fecha = fecha;
+    await saveMonth(mk,'bitacora');
+  }
+  ui.tareaEditando = null;
+  renderViewport();
+}
+
+function bindTareaEditEvents(){
+  document.querySelectorAll('[data-edit-task]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      ui.tareaEditando = el.dataset.editTask;
+      ui.tareaEditError = '';
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-cancel-edit-tarea]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      ui.tareaEditando = null;
+      ui.tareaEditError = '';
+      renderViewport();
+    });
+  });
+  document.querySelectorAll('[data-save-tarea]').forEach(el=>{
+    el.addEventListener('click', ()=>guardarEdicionTarea(el.dataset.saveTarea, el.dataset.saveTareaMk));
+  });
+  document.querySelectorAll('[data-edit-pilar]').forEach(el=>{
+    el.addEventListener('change', ()=>{
+      const sel = document.querySelector(`[data-edit-indicador="${el.dataset.editPilar}"]`);
+      if(sel) sel.innerHTML = indicadorOptions(el.value, 'none');
+    });
+  });
 }
 
 function renderSemana(){
@@ -1270,15 +1341,7 @@ function renderSemana(){
     return `
     <div class="day-col ${iso===todayISO?'today':''}" data-day-drop="${iso}">
       <div class="day-head">${dayLabel(d)}${iso===todayISO?' · hoy':''}<br><b>${d.getDate()} ${monthLabel(mk).split(' ')[0]}</b></div>
-      ${tareas.map(t=>`
-        <div class="mini-task" draggable="true" data-drag-week-task="${t.id}" data-drag-week-mk="${mk}" style="--mini-color:${pilarColorVar(t.pilar)};">
-          <div class="row-between" style="gap:6px;">
-            <span class="checkbox ${t.completada?'done':''}" data-toggle-task="${t.id}" data-mk="${mk}" style="width:16px;height:16px;"></span>
-            <span style="flex:1;${t.completada?'text-decoration:line-through;color:var(--text-3);':''}">${esc(t.titulo)}</span>
-            <button class="iconbtn" data-del-task="${t.id}" data-mk="${mk}">×</button>
-          </div>
-          <div class="small muted">${esc(getPilar(t.pilar)?.id||t.pilar)}</div>
-        </div>`).join('')}
+      ${tareas.map(t=>renderMiniTask(t, mk, {compact:false})).join('')}
       ${!tareas.length?'<div class="small muted">Sin tareas — arrastra aquí una actividad</div>':''}
     </div>`;
   }).join('');
@@ -1305,7 +1368,7 @@ function renderSemana(){
   <div class="card">
     <div class="row-between">
       <div class="section-title" style="margin:0;">Actividades por pilar</div>
-      <button class="btn btn-ghost btn-sm" id="btnNuevaActividad">+ actividad avanzada</button>
+      <button class="btn btn-ghost btn-sm" id="btnNuevaActividad">+ actividad recurrente</button>
     </div>
     <p class="small muted" style="margin:6px 0 14px;">Toca un pilar para ver sus actividades. Arrástralas a un día de la semana, o escribe una nueva ahí mismo.</p>
     ${ui.actNewOpen? renderFormNuevaActividad() : ''}
@@ -1449,7 +1512,7 @@ async function guardarTareaFormSemana(){
   ui.semanaFormError='';
   const mk = monthKey(parseISO(fecha));
   await loadMonth(mk);
-  state.bitacora[mk].tareas.push({id:uid('t'),titulo,pilar,horas:null,fecha,completada:false,prioridad:null,origenActividadId:null});
+  state.bitacora[mk].tareas.push({id:uid('t'),titulo,pilar,horas:null,fecha,completada:false,prioridad:null,indicadorId:null,origenActividadId:null});
   await saveMonth(mk,'bitacora');
   ui.semanaFormOpen = false;
   renderViewport();
@@ -1482,6 +1545,7 @@ async function eliminarUnoArchivo(idx){
 
 function bindSemanaEvents(){
   bindDeleteConfirmEvents();
+  bindTareaEditEvents();
   const btnPrev = document.getElementById('btnSemPrev');
   const btnNext = document.getElementById('btnSemNext');
   const btnHoy = document.getElementById('btnSemHoy');
