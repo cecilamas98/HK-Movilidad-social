@@ -1072,19 +1072,34 @@ async function ensureWeekLoaded(weekStart){
   for(const mk of weekMonthKeys(weekStart)) await loadMonth(mk);
 }
 
+function frecuenciaFechas(frecuencia, fechaISO){
+  if(frecuencia!=='Semanal') return [fechaISO];
+  // Repite el mismo día de la semana en todas las semanas del mes de la fecha elegida
+  const start = parseISO(fechaISO);
+  const mesRef = start.getMonth();
+  const fechas = [];
+  for(let d=new Date(start); d.getMonth()===mesRef; d=addDays(d,7)){
+    fechas.push(isoDate(d));
+  }
+  return fechas;
+}
+
 async function addTareaFromChip(actId, fechaISO, autoComplete){
   const act = state.actividades.find(a=>a.id===actId);
   if(!act) return;
-  const mk = monthKey(parseISO(fechaISO));
-  await loadMonth(mk);
-  const tarea = {
-    id: uid('t'), titulo: act.actividad, pilar: act.pilar, horas: act.horas,
-    fecha: fechaISO, completada: !!autoComplete, prioridad: act.prioridad,
-    indicadorId: act.indicadorId!=null ? act.indicadorId : null,
-    origenActividadId: act.id
-  };
-  state.bitacora[mk].tareas.push(tarea);
-  await saveMonth(mk,'bitacora');
+  const fechas = frecuenciaFechas(act.frecuencia, fechaISO);
+  for(const fecha of fechas){
+    const mk = monthKey(parseISO(fecha));
+    await loadMonth(mk);
+    state.bitacora[mk].tareas.push({
+      id: uid('t'), titulo: act.actividad, pilar: act.pilar, horas: act.horas,
+      fecha, completada: !!autoComplete, prioridad: act.prioridad,
+      indicadorId: act.indicadorId!=null ? act.indicadorId : null,
+      origenActividadId: act.id
+    });
+  }
+  const mesesTocados = new Set(fechas.map(f=>monthKey(parseISO(f))));
+  for(const mk of mesesTocados) await saveMonth(mk,'bitacora');
   renderViewport();
 }
 
