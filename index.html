@@ -724,7 +724,8 @@ let ui = {
   progMes: monthKey(new Date()),
   tareaEditando:null,
   tareaEditError:'',
-  editandoPublicacion:false
+  editandoPublicacion:false,
+  recurrentesOpen:false
 };
 
 // ── Supabase config ──────────────────────────────────────────
@@ -1174,6 +1175,76 @@ async function deleteTarea(id, mk){
   renderViewport();
 }
 
+function actividadesRecurrentes(){
+  return state.actividades.slice().sort((a,b)=>(a.pilar||'').localeCompare(b.pilar||'')||a.actividad.localeCompare(b.actividad));
+}
+
+function contarInstancias(actId){
+  const hoy = isoDate(new Date());
+  let total = 0, futuras = 0;
+  (state.config.meses||[]).forEach(mk=>{
+    getTareas(mk).forEach(t=>{
+      if(t.origenActividadId===actId){
+        total++;
+        if(t.fecha>=hoy) futuras++;
+      }
+    });
+  });
+  return {total, futuras};
+}
+
+async function abrirRecurrentes(){
+  ui.recurrentesOpen = true;
+  renderViewport();
+  for(const mk of (state.config.meses||[])) await loadMonth(mk);
+  renderViewport();
+}
+
+async function eliminarFuturasDeActividad(actId){
+  const hoy = isoDate(new Date());
+  for(const mk of (state.config.meses||[])){
+    await loadMonth(mk);
+    const antes = getTareas(mk).length;
+    state.bitacora[mk].tareas = getTareas(mk).filter(t=>!(t.origenActividadId===actId && t.fecha>=hoy));
+    if(getTareas(mk).length!==antes) await saveMonth(mk,'bitacora');
+  }
+  renderViewport();
+}
+
+function renderRecurrentesPanel(){
+  const recs = actividadesRecurrentes();
+  return `
+  <div class="card" style="padding:14px 16px;">
+    <div class="row-between" style="margin-bottom:10px;">
+      <div class="section-title" style="margin:0;">Actividades recurrentes</div>
+      <button class="btn btn-ghost btn-sm" id="btnCerrarRecurrentes">▴ Cerrar</button>
+    </div>
+    <p class="small muted" style="margin-bottom:10px;">Todas las actividades que has creado con "+ actividad recurrente", de todos los pilares. "Eliminar futuras" borra sus tareas ya programadas de hoy en adelante sin tocar lo que ya pasó; "×" borra la actividad completa del catálogo.</p>
+    ${!recs.length? '<p class="small muted">Todavía no has creado actividades recurrentes.</p>' : `
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Pilar</th><th>Actividad</th><th>Frecuencia</th><th>Programadas</th><th>Futuras</th><th></th><th></th></tr></thead>
+      <tbody>${recs.map(a=>{
+        const c = contarInstancias(a.id);
+        const confirmingFut = ui.confirmDelete && ui.confirmDelete.type==='recfut' && String(ui.confirmDelete.id)===String(a.id);
+        const btnFut = c.futuras===0
+          ? `<span class="small muted">—</span>`
+          : confirmingFut
+            ? `<button class="btn btn-sm" data-confirm-del="recfut:${a.id}" style="color:var(--rojo);border-color:var(--rojo);">¿Seguro? Sí, borrar</button>`
+            : `<button class="btn btn-ghost btn-sm" data-ask-del="recfut:${a.id}">Eliminar futuras</button>`;
+        return `<tr>
+          <td class="small">${esc(getPilar(a.pilar)?.id||a.pilar)}</td>
+          <td>${esc(a.actividad)}</td>
+          <td class="small">${esc(a.frecuencia||'')}</td>
+          <td class="small">${c.total}</td>
+          <td class="small">${c.futuras}</td>
+          <td>${btnFut}</td>
+          <td>${deleteBtnHtml('act', a.id, 'Eliminar actividad completa')}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`}
+  </div>`;
+}
+
 function unopctMonthKey(){ return monthKey(ui.semanaBase); }
 
 function deleteBtnHtml(type, id, title){
@@ -1206,6 +1277,7 @@ function bindDeleteConfirmEvents(){
       if(type==='act') eliminarActividad(id);
       else if(type==='ind') eliminarIndicador(id);
       else if(type==='mejora') eliminarMejora(id);
+      else if(type==='recfut') eliminarFuturasDeActividad(id);
     });
   });
 }
@@ -1499,6 +1571,7 @@ function renderSemana(){
     <div class="row">
       <button class="toggle ${ui.filtroPrioridad?'on':''}" id="toggleFiltro">Solo críticas</button>
       <button class="btn btn-ghost btn-sm" id="btnToggleCaptura">📎 Capturar 1%</button>
+      <button class="btn btn-ghost btn-sm" id="btnToggleRecurrentes">🔁 Recurrentes</button>
       <button class="btn btn-ghost btn-sm" id="btnSemPrev">‹ anterior</button>
       <button class="btn btn-ghost btn-sm" id="btnSemHoy">esta semana</button>
       <button class="btn btn-ghost btn-sm" id="btnSemNext">siguiente ›</button>
@@ -1545,6 +1618,8 @@ function renderSemana(){
       unopct.archivos.map((a,idx)=>'<tr><td>'+esc(a.nombre)+'</td><td><select data-uno-pilar="'+idx+'">'+pilarOptions(a.pilar)+'<option value=""'+((!a.pilar)?' selected':'')+'>Sin clasificar</option></select></td><td><button class="iconbtn" data-uno-del="'+idx+'">×</button></td></tr>').join('')+
     '</tbody></table></div>':''}
   </div>`:''}
+
+  ${ui.recurrentesOpen? renderRecurrentesPanel() : ''}
 
   `;
 }
@@ -1738,12 +1813,35 @@ function bindSemanaEvents(){
   const btnProgPrev = document.getElementById('btnProgMesPrev');
   const btnProgNext = document.getElementById('btnProgMesNext');
   const btnProgHoy = document.getElementById('btnProgMesHoy');
-  if(btnProgPrev) btnProgPrev.addEventListener('click', async ()=>{ ui.progMes = addMonths(ui.progMes,-1); await loadMonth(ui.progMes); renderViewport(); });
-  if(btnProgNext) btnProgNext.addEventListener('click', async ()=>{ ui.progMes = addMonths(ui.progMes,1); await loadMonth(ui.progMes); renderViewport(); });
-  if(btnProgHoy) btnProgHoy.addEventListener('click', async ()=>{ ui.progMes = monthKey(new Date()); await loadMonth(ui.progMes); renderViewport(); });
+  async function irAProgMes(nuevoMk){
+    ui.progMes = nuevoMk;
+    await loadMonth(ui.progMes);
+    // Mueve también "Gestión diaria" a una semana dentro del mes que se está programando,
+    // para que no se quede mostrando la semana (y por lo tanto tareas) del mes anterior.
+    const semanaDentroDelMes = isoDate(ui.semanaBase).slice(0,7)!==ui.progMes;
+    if(semanaDentroDelMes){
+      const [y,m] = ui.progMes.split('-').map(Number);
+      ui.semanaBase = startOfWeek(new Date(y, m-1, 1));
+      await ensureWeekLoaded(ui.semanaBase);
+    }
+    renderViewport();
+  }
+  if(btnProgPrev) btnProgPrev.addEventListener('click', ()=>irAProgMes(addMonths(ui.progMes,-1)));
+  if(btnProgNext) btnProgNext.addEventListener('click', ()=>irAProgMes(addMonths(ui.progMes,1)));
+  if(btnProgHoy) btnProgHoy.addEventListener('click', async ()=>{
+    ui.progMes = monthKey(new Date());
+    await loadMonth(ui.progMes);
+    ui.semanaBase = startOfWeek(new Date());
+    await ensureWeekLoaded(ui.semanaBase);
+    renderViewport();
+  });
 
   const btnCap = document.getElementById('btnToggleCaptura');
   if(btnCap) btnCap.addEventListener('click',()=>{ ui.unopctOpen=!ui.unopctOpen; renderViewport(); });
+  const btnToggleRec = document.getElementById('btnToggleRecurrentes');
+  if(btnToggleRec) btnToggleRec.addEventListener('click', abrirRecurrentes);
+  const btnCerrarRec = document.getElementById('btnCerrarRecurrentes');
+  if(btnCerrarRec) btnCerrarRec.addEventListener('click', ()=>{ ui.recurrentesOpen=false; renderViewport(); });
   const _bNS=document.getElementById('btnNuevaMejoraS');
   if(_bNS) _bNS.addEventListener('click',()=>{ ui.mejorasNewOpen=!ui.mejorasNewOpen; ui.mejorasFormError=''; renderViewport(); });
   const _bGMS=document.getElementById('btnGuardarMejora');
