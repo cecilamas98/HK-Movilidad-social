@@ -679,7 +679,8 @@ let state = {
   unopct: {},        // { 'YYYY-MM': {archivos:[...]} }
   cierre: {},        // { 'YYYY-MM': {narrativa:''} }
   indicadorHist: {}, // { 'YYYY-MM': { [indicadorId]: real } }
-  publicacionSemanal: null // {lunes,martes,miercoles,jueves,viernes} — contenido fijo a publicar, igual cada semana
+  publicacionSemanal: null, // {lunes,martes,miercoles,jueves,viernes} — contenido fijo a publicar, igual cada semana
+  tareasFijasCompletadas: {} // { 'YYYY-MM-DD:tareaFijaId': true } — check de tareas fijas recurrentes, por día
 };
 
 const SEED_PUBLICACION_SEMANAL = {
@@ -768,6 +769,7 @@ async function loadCatalogos(){
   state.indicadores = await getOrSeed('catalogo:indicadores', SEED_INDICADORES);
   state.mejoras = await getOrSeed('mejoras', SEED_MEJORAS);
   state.publicacionSemanal = await getOrSeed('publicacion_semanal', SEED_PUBLICACION_SEMANAL);
+  state.tareasFijasCompletadas = await getOrSeed('tareas_fijas_completadas', {});
   state.config = await getOrSeed('config', {horasSemana:30, horasMes:130, meses:[]});
   if(!state.config.meses) state.config.meses = [];
   // Limpieza única: borra cualquier catálogo de actividades fijas guardado previamente.
@@ -1387,6 +1389,46 @@ const DIAS_PUBLICACION = [
   {key:'viernes', label:'Viernes'}
 ];
 
+// Tareas fijas que se repiten solas cada semana — no se guardan como filas
+// nuevas cada vez (para no repetir el problema de duplicados de antes):
+// se calculan al vuelo para cualquier día, y solo se guarda si están
+// marcadas como completadas (una entrada liviana por fecha+id).
+function tareasFijasDelDia(d){
+  const dow = d.getDay(); // 0=domingo ... 6=sábado
+  const out = [];
+  if(dow>=1 && dow<=5){
+    const dia = DIAS_PUBLICACION[dow-1];
+    const pub = (state.publicacionSemanal||SEED_PUBLICACION_SEMANAL)[dia.key];
+    out.push({id:'fija:publicacion', titulo:'📌 Publicar: '+(pub||'—'), pilar:null});
+  }
+  if(dow===1 || dow===5){
+    out.push({id:'fija:impulso', titulo:'📌 Mensaje semana Impulso', pilar:'P1'});
+  }
+  return out;
+}
+
+function tareaFijaCompletada(fecha, id){
+  return !!state.tareasFijasCompletadas[fecha+':'+id];
+}
+
+async function toggleTareaFija(fecha, id){
+  const key = fecha+':'+id;
+  state.tareasFijasCompletadas[key] = !state.tareasFijasCompletadas[key];
+  await storeSet('tareas_fijas_completadas', state.tareasFijasCompletadas);
+  renderViewport();
+}
+
+function renderMiniTaskFija(fecha, tf){
+  const done = tareaFijaCompletada(fecha, tf.id);
+  return `
+  <div class="mini-task" style="--mini-color:${tf.pilar?pilarColorVar(tf.pilar):'var(--orange)'};border-style:dashed;">
+    <div class="row-between" style="gap:6px;">
+      <span class="checkbox ${done?'done':''}" data-toggle-fija="${tf.id}" data-fija-fecha="${fecha}" style="width:16px;height:16px;"></span>
+      <span style="flex:1;${done?'text-decoration:line-through;color:var(--text-3);':''}">${esc(tf.titulo)}</span>
+    </div>
+  </div>`;
+}
+
 function renderPublicacionSemanal(){
   const pub = state.publicacionSemanal || SEED_PUBLICACION_SEMANAL;
   if(ui.editandoPublicacion){
@@ -1467,11 +1509,13 @@ function renderSemana(){
     const iso = isoDate(d);
     const mk = monthKey(d);
     const tareas = tareasDelDia(mk, iso);
+    const fijas = tareasFijasDelDia(d);
     return `
     <div class="day-col ${iso===todayISO?'today':''}" data-day-drop="${iso}">
       <div class="day-head">${dayLabel(d)}${iso===todayISO?' · hoy':''}<br><b>${d.getDate()} ${monthLabel(mk).split(' ')[0]}</b></div>
+      ${fijas.map(tf=>renderMiniTaskFija(iso, tf)).join('')}
       ${tareas.map(t=>renderMiniTask(t, mk, {compact:false})).join('')}
-      ${!tareas.length?'<div class="small muted">Sin tareas — arrastra aquí una actividad</div>':''}
+      ${(!tareas.length && !fijas.length)?'<div class="small muted">Sin tareas — arrastra aquí una actividad</div>':''}
     </div>`;
   }).join('');
 
@@ -1778,6 +1822,9 @@ function bindSemanaEvents(){
   });
   document.querySelectorAll('[data-toggle-task]').forEach(el=>{
     el.addEventListener('click', ()=>toggleTarea(el.dataset.toggleTask, el.dataset.mk));
+  });
+  document.querySelectorAll('[data-toggle-fija]').forEach(el=>{
+    el.addEventListener('click', ()=>toggleTareaFija(el.dataset.fijaFecha, el.dataset.toggleFija));
   });
   document.querySelectorAll('[data-del-task]').forEach(el=>{
     el.addEventListener('click', ()=>deleteTarea(el.dataset.delTask, el.dataset.mk));
