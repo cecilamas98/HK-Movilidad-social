@@ -1404,6 +1404,9 @@ function tareasFijasDelDia(d){
   if(dow===1 || dow===5){
     out.push({id:'fija:impulso', titulo:'📌 Mensaje semana Impulso', pilar:'P1'});
   }
+  if(dow===5){
+    out.push({id:'fija:retoahorro', titulo:'📌 Reto ahorro', pilar:null});
+  }
   return out;
 }
 
