@@ -545,7 +545,6 @@ let ui = {
   view:'semana',
   mes: monthKey(new Date()),
   semanaBase: startOfWeek(new Date()),
-  filtroPrioridad:false,
   mapaSel:{ventaja:null,pilar:null},
   showForm:false,
   formError:'',
@@ -565,7 +564,6 @@ let ui = {
   progMes: monthKey(new Date()),
   tareaEditando:null,
   tareaEditError:'',
-  editandoPublicacion:false,
   bloqueDesde:null,
   bloqueHasta:null,
   accSemaforoFiltro:null
@@ -1172,73 +1170,12 @@ function renderMiniTaskFija(fecha, tf){
   </div>`;
 }
 
-function renderPublicacionSemanal(){
-  const pub = state.publicacionSemanal || SEED_PUBLICACION_SEMANAL;
-  if(ui.editandoPublicacion){
-    return `
-    <div class="card" style="margin-bottom:16px;">
-      <div class="row-between">
-        <div class="section-title" style="margin:0;">Publicar esta semana (fijo)</div>
-      </div>
-      <p class="small muted" style="margin:6px 0 14px;">Este contenido se repite igual cada semana — edítalo aquí cuando cambie.</p>
-      <div class="prog-mes-row" style="grid-template-columns:repeat(5,1fr);">
-        ${DIAS_PUBLICACION.map(d=>`
-          <div>
-            <div class="prog-mes-headcell" style="text-align:left;margin-bottom:4px;">${d.label}</div>
-            <input type="text" data-edit-publicacion="${d.key}" value="${esc(pub[d.key]||'')}" style="font-size:12px;padding:6px 8px;">
-          </div>`).join('')}
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <button class="btn btn-primary btn-sm" id="btnGuardarPublicacion">Guardar</button>
-        <button class="btn btn-ghost btn-sm" id="btnCancelarPublicacion">Cancelar</button>
-      </div>
-    </div>`;
-  }
-  return `
-  <div class="card" style="margin-bottom:16px;">
-    <div class="row-between">
-      <div class="section-title" style="margin:0;">Publicar esta semana (fijo)</div>
-      <button class="btn btn-ghost btn-sm" id="btnEditarPublicacion">Editar</button>
-    </div>
-    <div class="prog-mes-row" style="grid-template-columns:repeat(5,1fr);margin-top:10px;">
-      ${DIAS_PUBLICACION.map(d=>`
-        <div class="day-col day-col-compact">
-          <div class="day-head">${d.label}</div>
-          <div class="small">${esc(pub[d.key]||'—')}</div>
-        </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-async function guardarPublicacionSemanal(){
-  const pub = {};
-  DIAS_PUBLICACION.forEach(d=>{
-    const el = document.querySelector(`[data-edit-publicacion="${d.key}"]`);
-    pub[d.key] = el ? el.value.trim() : '';
-  });
-  state.publicacionSemanal = pub;
-  await storeSet('publicacion_semanal', pub);
-  ui.editandoPublicacion = false;
-  renderViewport();
-}
-
-function bindPublicacionSemanalEvents(){
-  const btnEditar = document.getElementById('btnEditarPublicacion');
-  if(btnEditar) btnEditar.addEventListener('click', ()=>{ ui.editandoPublicacion=true; renderViewport(); });
-  const btnGuardar = document.getElementById('btnGuardarPublicacion');
-  if(btnGuardar) btnGuardar.addEventListener('click', guardarPublicacionSemanal);
-  const btnCancelar = document.getElementById('btnCancelarPublicacion');
-  if(btnCancelar) btnCancelar.addEventListener('click', ()=>{ ui.editandoPublicacion=false; renderViewport(); });
-}
-
 function renderSemana(){
   const weekStart = ui.semanaBase;
   const days = [...Array(7)].map((_,i)=>addDays(weekStart,i));
   const today = new Date();
   const todayISO = isoDate(today);
   const esSemanaActual = days.some(d=>isoDate(d)===todayISO);
-  let chips = state.actividades.slice();
-  if(ui.filtroPrioridad) chips = chips.filter(a=>a.prioridad==='Crítica');
   // Actividades ya programadas alguna vez, en cualquier mes — una vez usadas, desaparecen
   // del panel para siempre (no solo en la semana o el mes que se está viendo).
   const yaAgregadas = new Set();
@@ -1263,8 +1200,6 @@ function renderSemana(){
   }).join('');
 
   return `
-  ${renderPublicacionSemanal()}
-
   <div class="row-between" style="margin-bottom:16px;">
     <div>
       <div class="section-title" style="margin-bottom:2px;">Semana</div>
@@ -1272,7 +1207,6 @@ function renderSemana(){
       ${esSemanaActual? `<p class="muted small" style="margin:4px 0 0;text-transform:capitalize;">Hoy es ${dayLabel(today)} ${today.getDate()}</p>` : ''}
     </div>
     <div class="row">
-      <button class="toggle ${ui.filtroPrioridad?'on':''}" id="toggleFiltro">Solo críticas</button>
       <button class="btn btn-ghost btn-sm" id="btnSemPrev">‹ anterior</button>
       <button class="btn btn-ghost btn-sm" id="btnSemHoy">esta semana</button>
       <button class="btn btn-ghost btn-sm" id="btnSemNext">siguiente ›</button>
@@ -1332,7 +1266,6 @@ function renderPanelPilar(pid, days, todayISO, yaAgregadasSemana){
   const p = getPilar(pid);
   if(!p) return '';
   let acts = actividadesDe(pid).filter(a=>!yaAgregadasSemana.has(a.id));
-  if(ui.filtroPrioridad) acts = acts.filter(a=>a.prioridad==='Crítica');
   const colorVar = pilarColorVar(pid);
   const indsPilar = state.indicadores.filter(i=>i.pilar===pid);
   return `
@@ -1423,12 +1356,9 @@ async function guardarTareaFormSemana(){
 function bindSemanaEvents(){
   bindDeleteConfirmEvents();
   bindTareaEditEvents();
-  bindPublicacionSemanalEvents();
   const btnPrev = document.getElementById('btnSemPrev');
   const btnNext = document.getElementById('btnSemNext');
   const btnHoy = document.getElementById('btnSemHoy');
-  const toggleFiltro = document.getElementById('toggleFiltro');
-  if(toggleFiltro) toggleFiltro.addEventListener('click', ()=>{ ui.filtroPrioridad=!ui.filtroPrioridad; renderViewport(); });
   const btnNuevaAct = document.getElementById('btnNuevaActividad');
   if(btnNuevaAct) btnNuevaAct.addEventListener('click', ()=>{ ui.actNewOpen=!ui.actNewOpen; ui.actFormError=''; renderViewport(); });
   bindActividadFormEvents();
